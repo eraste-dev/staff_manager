@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { noCase } from 'change-case';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // @mui
 import {
   Box,
@@ -25,14 +25,17 @@ import Iconify from '../../../components/Iconify';
 import Scrollbar from '../../../components/Scrollbar';
 import MenuPopover from '../../../components/MenuPopover';
 import { IconButtonAnimate } from '../../../components/animate';
+import { useDispatch, useSelector } from 'react-redux';
+import { getNotifications } from 'src/redux/slices/user';
 
 // ----------------------------------------------------------------------
 
 export default function NotificationsPopover() {
-  const [notifications, setNotifications] = useState(_notifications);
-
-  const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
-
+  const dispatch = useDispatch();
+  const { error, isLoading, notifications } = useSelector((state) => state.user);
+  // const [notifications, setNotifications] = useState(_notifications);
+  // const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+  const totalUnRead = 0;
   const [open, setOpen] = useState(null);
 
   const handleOpen = (event) => {
@@ -44,13 +47,19 @@ export default function NotificationsPopover() {
   };
 
   const handleMarkAllAsRead = () => {
-    setNotifications(
-      notifications.map((notification) => ({
-        ...notification,
-        isUnRead: false,
-      }))
-    );
+    // setNotifications(
+    //   notifications.map((notification) => ({
+    //     ...notification,
+    //     isUnRead: false,
+    //   }))
+    // );
   };
+
+  useEffect(() => {
+    if (!isLoading && !error && !notifications) {
+      dispatch(getNotifications());
+    }
+  }, [dispatch, error, isLoading, notifications]);
 
   return (
     <>
@@ -70,7 +79,7 @@ export default function NotificationsPopover() {
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="subtitle1">Notifications</Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              You have {totalUnRead} unread messages
+              Vous avez {totalUnRead} non lues
             </Typography>
           </Box>
 
@@ -86,40 +95,48 @@ export default function NotificationsPopover() {
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Scrollbar sx={{ height: { xs: 340, sm: 'auto' } }}>
-          <List
-            disablePadding
-            subheader={
-              <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
-                New
-              </ListSubheader>
-            }
-          >
-            {notifications.slice(0, 2).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
-            ))}
-          </List>
+          {notifications && notifications.length > 0 && (
+            <List
+              disablePadding
+              subheader={
+                <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
+                  Nouveau
+                </ListSubheader>
+              }
+            >
+              {notifications &&
+                notifications
+                  .slice(0, 2)
+                  .map((notification) => <NotificationItem key={notification.id} notification={notification} />)}
+            </List>
+          )}
 
-          <List
-            disablePadding
-            subheader={
-              <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
-                Before that
-              </ListSubheader>
-            }
-          >
-            {notifications.slice(2, 5).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
-            ))}
-          </List>
+          {notifications && notifications.length > 0 && (
+            <List
+              disablePadding
+              subheader={
+                <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
+                  Anciens
+                </ListSubheader>
+              }
+            >
+              {notifications &&
+                notifications
+                  .slice(2, 5)
+                  .map((notification) => <NotificationItem key={notification.id} notification={notification} />)}
+            </List>
+          )}
         </Scrollbar>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Box sx={{ p: 1 }}>
-          <Button fullWidth disableRipple>
-            View All
-          </Button>
-        </Box>
+        {notifications && notifications.length > 0 && (
+          <Box sx={{ p: 1 }}>
+            <Button fullWidth disableRipple>
+              Voir tous
+            </Button>
+          </Box>
+        )}
       </MenuPopover>
     </>
   );

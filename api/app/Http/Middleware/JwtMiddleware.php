@@ -19,8 +19,9 @@ class JwtMiddleware
     {
         $token = $request->bearerToken();
 
-        if (!$token) {
-            return ResponseService::error('Unauthorized, token not found', 401);
+        if (! $token) {
+            // Unauthorized, token not found
+            return ResponseService::error('Non autorisé, token introuvable', 401);
         }
 
         try {

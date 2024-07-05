@@ -9,19 +9,19 @@ class ResponseService
     /**
      * Returns a JSON response with a success status and the provided data and message.
      *
-     * @param mixed $data The data to be included in the response.
-     * @param string|null $message An optional message to be included in the response.
+     * @param  mixed  $data  The data to be included in the response.
+     * @param  string|null  $message  An optional message to be included in the response.
      * @return \Illuminate\Http\JsonResponse The JSON response with the success status, data, message, and error.
      */
     public static function success(
         $data,
-        string $message = null,
-        LengthAwarePaginator | array $pagination = []
+        ?string $message = null,
+        LengthAwarePaginator|array $pagination = []
     ) {
         return response()->json([
             'success' => true,
             'data' => $data,
-            'pagination' => $pagination,
+            // 'pagination' => $pagination,
             'message' => $message,
             'error' => null,
         ]);
@@ -30,9 +30,9 @@ class ResponseService
     /**
      * A function that returns a JSON error response.
      *
-     * @param mixed $message The error message.
-     * @param int $status The HTTP status code for the response. Default is 400.
-     * @param array $traces Additional traces for debugging. Default is an empty array.
+     * @param  mixed  $message  The error message.
+     * @param  int  $status  The HTTP status code for the response. Default is 400.
+     * @param  array  $traces  Additional traces for debugging. Default is an empty array.
      * @return \Illuminate\Http\JsonResponse The JSON error response.
      */
     public static function error(
@@ -43,11 +43,11 @@ class ResponseService
     ) {
         return response()->json([
             'success' => false,
-            'data'    => null,
+            'data' => null,
             'message' => $message,
-            'error'   => $message,
-            'errors'  => $errors,
-            'traces'  => $traces,
+            'error' => $message,
+            'errors' => $errors,
+            'traces' => $traces,
         ], $status);
     }
 }

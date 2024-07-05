@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 import { useSnackbar } from 'notistack';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 // form
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -15,30 +15,29 @@ import { fData } from '../../../../utils/formatNumber';
 import { countries } from '../../../../_mock';
 // components
 import { FormProvider, RHFSwitch, RHFSelect, RHFTextField, RHFUploadAvatar } from '../../../../components/hook-form';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateAccount } from 'src/redux/slices/user';
 
 // ----------------------------------------------------------------------
 
 export default function AccountGeneral() {
+  const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { user } = useAuth();
+  const { user, error, isLoading, updateSuccess } = useSelector((state) => state.user);
 
   const UpdateUserSchema = Yup.object().shape({
-    displayName: Yup.string().required('Name is required'),
+    nomemp: Yup.string().required('Name is required'),
   });
 
   const defaultValues = {
-    displayName: user?.displayName || '',
+    nomemp: user?.nomemp || '',
+    premp: user?.premp || '',
     email: user?.email || '',
-    photoURL: user?.photoURL || '',
-    phoneNumber: user?.phoneNumber || '',
-    country: user?.country || '',
-    address: user?.address || '',
-    state: user?.state || '',
-    city: user?.city || '',
-    zipCode: user?.zipCode || '',
-    about: user?.about || '',
-    isPublic: user?.isPublic || false,
+    matemp: user?.matemp || '',
+    photoURL: user?.avatar || '',
+    foncemp: user?.foncemp || '',
+    state: user?.status || '',
   };
 
   const methods = useForm({
@@ -52,10 +51,9 @@ export default function AccountGeneral() {
     formState: { isSubmitting },
   } = methods;
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      enqueueSnackbar('Update success!');
+      dispatch(updateAccount({ ...data, id: user.id }));
     } catch (error) {
       console.error(error);
     }
@@ -76,6 +74,16 @@ export default function AccountGeneral() {
     },
     [setValue]
   );
+
+  useEffect(() => {
+    if (!isLoading && updateSuccess) {
+      enqueueSnackbar('Inscription reussie');
+    }
+
+    if (!isLoading && !updateSuccess && error) {
+      enqueueSnackbar(`${error}`, { variant: 'error' });
+    }
+  }, [user, updateSuccess, isLoading, error, enqueueSnackbar]);
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
@@ -104,7 +112,7 @@ export default function AccountGeneral() {
               }
             />
 
-            <RHFSwitch name="isPublic" labelPlacement="start" label="Public Profile" sx={{ mt: 5 }} />
+            {false && <RHFSwitch name="isPublic" labelPlacement="start" label="Public Profile" sx={{ mt: 5 }} />}
           </Card>
         </Grid>
 
@@ -118,32 +126,33 @@ export default function AccountGeneral() {
                 gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
               }}
             >
-              <RHFTextField name="displayName" label="Name" />
-              <RHFTextField name="email" label="Email Address" />
+              <RHFTextField name="premp" label="Prenoms" />
+              <RHFTextField name="nomemp" label="Nom" />
 
-              <RHFTextField name="phoneNumber" label="Phone Number" />
-              <RHFTextField name="address" label="Address" />
+              <RHFTextField name="matemp" label="Matricule" disabled={true} />
+              <RHFTextField name="foncemp" label="Fonction" />
 
-              <RHFSelect name="country" label="Country" placeholder="Country">
-                <option value="" />
-                {countries.map((option) => (
-                  <option key={option.code} value={option.label}>
-                    {option.label}
-                  </option>
-                ))}
-              </RHFSelect>
+              <RHFTextField name="email" label="Email" />
 
-              <RHFTextField name="state" label="State/Region" />
+              {false && (
+                <RHFSelect name="country" label="Country" placeholder="Country">
+                  <option value="" />
+                  {countries.map((option) => (
+                    <option key={option.code} value={option.label}>
+                      {option.label}
+                    </option>
+                  ))}
+                </RHFSelect>
+              )}
 
-              <RHFTextField name="city" label="City" />
-              <RHFTextField name="zipCode" label="Zip/Code" />
+              {/* <RHFTextField  label="Email" /> */}
             </Box>
 
             <Stack spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>
-              <RHFTextField name="about" multiline rows={4} label="About" />
+              {/* <RHFTextField name="about" multiline rows={4} label="About" /> */}
 
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                Save Changes
+                Mettre à jour
               </LoadingButton>
             </Stack>
           </Card>

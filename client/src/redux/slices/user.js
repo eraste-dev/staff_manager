@@ -10,9 +10,12 @@ const initialState = {
   isLoading: false,
   error: null,
   success: false,
+  registerSuccess: false,
+  updateSuccess: false,
   token: null,
   user: {},
   expire: null,
+  notifications: undefined,
 };
 
 const slice = createSlice({
@@ -36,12 +39,15 @@ const slice = createSlice({
      * @param {Object} action - The action object containing the payload data.
      */
     hasError(state, action) {
+      console.log(action);
       state.isLoading = false;
-      state.error = action.payload;
+      state.error = action.payload?.error;
       state.success = false;
-      state.expire = null;
-      state.token = null;
-      state.user = null;
+      state.registerSuccess = false;
+      state.updateSuccess = false;
+      // state.expire = null;
+      // state.token = null;
+      // state.user = null;
     },
 
     /**
@@ -51,12 +57,16 @@ const slice = createSlice({
      * @param {Object} action - The action object containing payload data.
      */
     loginSuccess(state, action) {
-      console.log(action, 'loginSuccess in user slice');
       state.isLoading = false;
       state.user = action.payload.data.user;
       state.token = action.payload.data.token;
-      state.success = action.payload.data.success;
+      state.success = true;
+      state.registerSuccess = false;
+      state.updateSuccess = false;
       state.expire = action.payload.data.expire;
+      state.error = null;
+      // Sauvegarder le token dans le cache
+      localStorage.setItem('authToken', action.payload.data.token);
     },
 
     /**
@@ -68,7 +78,53 @@ const slice = createSlice({
       state.user = null;
       state.token = null;
       state.expire = null;
+      state.success = null;
+      state.registerSuccess = null;
+      state.updateSuccess = null;
+      state.error = null;
+      state.isLoading = false;
+    },
+
+    /**
+     * Updates the user registration success state based on the action payload.
+     *
+     * @param {Object} state - The current state of the user slice.
+     * @param {Object} action - The action object containing payload data.
+     */
+    registerSuccess(state, action) {
+      state.user = action.payload.data.user;
+      state.token = action.payload.data.token;
+      state.expire = action.payload.data.expire;
+      state.isLoading = false;
       state.success = false;
+      state.updateSuccess = false;
+      state.registerSuccess = true;
+      state.error = null;
+    },
+
+    /**
+     * Updates the account success state based on the action payload.
+     *
+     * @param {Object} state - The current state of the user slice.
+     * @param {Object} action - The action object containing payload data.
+     */
+    updateAccountSuccess(state, action) {
+      state.user = action.payload.data;
+      state.isLoading = false;
+      state.updateSuccess = true;
+      state.error = null;
+    },
+
+    /**
+     * Updates the account success state based on the action payload.
+     *
+     * @param {Object} state - The current state of the user slice.
+     * @param {Object} action - The action object containing payload data.
+     */
+    getNotificationSuccess(state, action) {
+      state.notifications = action.payload.data;
+      state.isLoading = false;
+      state.error = null;
     },
   },
 });
@@ -94,6 +150,60 @@ export function login(matemp, password) {
     try {
       const response = await axios.post('/auth/login', { matemp, password });
       dispatch(slice.actions.loginSuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+/**
+ * Sends a POST request to the '/auth/register' endpoint to register a new user.
+ *
+ * @param {Object} payload - The data to be sent in the request body. It should contain the following properties:
+ *   - nomemp: The name of the user.
+ *   - premp: The prefix of the user's email.
+ *   - matemp: The user's email.
+ *   - foncemp: The user's phone number.
+ *   - email: The user's email.
+ *   - password: The user's password.
+ * @return {Promise<void>} A promise that resolves when the request is successful, or rejects with an error.
+ */
+export function register(payload) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.post('/auth/register', payload);
+      dispatch(slice.actions.registerSuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+/**
+ * Updates the user's account information.
+ *
+ * @param {Object} payload - The payload containing the updated account information.
+ * @return {Promise<void>} A Promise that resolves when the account information is successfully updated.
+ */
+export function updateAccount(payload) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.put('/user/update-profile', payload);
+      dispatch(slice.actions.updateAccountSuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function getNotifications(payload) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get('/user/notifications', payload);
+      dispatch(slice.actions.getNotificationSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

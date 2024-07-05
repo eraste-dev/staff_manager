@@ -11,7 +11,7 @@ class NotificationService
         User $user,
         string $title = '',
         string $message = '',
-        array|null $notifyAdmins = null
+        ?array $notifyAdmins = null
     ) {
         if ($notifyAdmins != null && isset($notifyAdmins['title']) && isset($notifyAdmins['message'])) {
             static::notifyAdmins($notifyAdmins['title'], $notifyAdmins['message']);
@@ -29,13 +29,13 @@ class NotificationService
     public static function notifyUsers(
         string $title = '',
         string $message = '',
-        array|null $notifyAdmins = null
+        ?array $notifyAdmins = null
     ) {
         if ($notifyAdmins != null && isset($notifyAdmins['title']) && isset($notifyAdmins['message'])) {
             static::notifyAdmins($notifyAdmins['title'], $notifyAdmins['message']);
         }
 
-        foreach (User::where('type', 'USER')->get() as $user) {
+        foreach (User::where('type', 'EMPLOYEE')->get() as $user) {
             static::notify($user, $title, $message);
         }
     }

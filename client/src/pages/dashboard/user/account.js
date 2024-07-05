@@ -42,38 +42,34 @@ export default function UserAccount() {
       icon: <Iconify icon={'ic:round-account-box'} width={20} height={20} />,
       component: <AccountGeneral />,
     },
-    {
-      value: 'billing',
-      icon: <Iconify icon={'ic:round-receipt'} width={20} height={20} />,
-      component: <AccountBilling cards={_userPayment} addressBook={_userAddressBook} invoices={_userInvoices} />,
-    },
-    {
-      value: 'notifications',
-      icon: <Iconify icon={'eva:bell-fill'} width={20} height={20} />,
-      component: <AccountNotifications />,
-    },
-    {
-      value: 'social_links',
-      icon: <Iconify icon={'eva:share-fill'} width={20} height={20} />,
-      component: <AccountSocialLinks myProfile={_userAbout} />,
-    },
-    {
-      value: 'change_password',
-      icon: <Iconify icon={'ic:round-vpn-key'} width={20} height={20} />,
-      component: <AccountChangePassword />,
-    },
+    // {
+    //   value: 'billing',
+    //   icon: <Iconify icon={'ic:round-receipt'} width={20} height={20} />,
+    //   component: <AccountBilling cards={_userPayment} addressBook={_userAddressBook} invoices={_userInvoices} />,
+    // },
+    // {
+    //   value: 'notifications',
+    //   icon: <Iconify icon={'eva:bell-fill'} width={20} height={20} />,
+    //   component: <AccountNotifications />,
+    // },
+    // {
+    //   value: 'social_links',
+    //   icon: <Iconify icon={'eva:share-fill'} width={20} height={20} />,
+    //   component: <AccountSocialLinks myProfile={_userAbout} />,
+    // },
+    // {
+    //   value: 'change_password',
+    //   icon: <Iconify icon={'ic:round-vpn-key'} width={20} height={20} />,
+    //   component: <AccountChangePassword />,
+    // },
   ];
 
   return (
-    <Page title="User: Account Settings">
+    <Page title="Paramètre Utilisateur">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading="Account"
-          links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'User', href: PATH_DASHBOARD.user.root },
-            { name: 'Account Settings' },
-          ]}
+          heading="Paramètres Utilisateur"
+          links={[{ name: 'Tableau de bord', href: PATH_DASHBOARD.general.booking }, { name: 'Paramètres' }]}
         />
 
         <Tabs

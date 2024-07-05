@@ -15,20 +15,18 @@ import useIsMountedRef from '../../../hooks/useIsMountedRef';
 import MyAvatar from '../../../components/MyAvatar';
 import MenuPopover from '../../../components/MenuPopover';
 import { IconButtonAnimate } from '../../../components/animate';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from 'src/redux/slices/user';
 
 // ----------------------------------------------------------------------
 
 const MENU_OPTIONS = [
+  // {
+  //   label: 'Profile',
+  //   linkTo: PATH_DASHBOARD.user.profile,
+  // },
   {
-    label: 'Home',
-    linkTo: '/',
-  },
-  {
-    label: 'Profile',
-    linkTo: PATH_DASHBOARD.user.profile,
-  },
-  {
-    label: 'Settings',
+    label: 'Parameters',
     linkTo: PATH_DASHBOARD.user.account,
   },
 ];
@@ -37,8 +35,8 @@ const MENU_OPTIONS = [
 
 export default function AccountPopover() {
   const router = useRouter();
-
-  const { user, logout } = useAuth();
+  const dispatch = useDispatch();
+  const { user, success, isLoading } = useSelector((state) => state.user);
 
   const isMountedRef = useIsMountedRef();
 
@@ -56,12 +54,10 @@ export default function AccountPopover() {
 
   const handleLogout = async () => {
     try {
-      await logout();
+      dispatch(logout());
       router.replace(PATH_AUTH.login);
 
-      if (isMountedRef.current) {
-        handleClose();
-      }
+      if (isMountedRef.current) handleClose();
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Unable to logout!', { variant: 'error' });
