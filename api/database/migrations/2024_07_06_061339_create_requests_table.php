@@ -26,6 +26,7 @@ return new class extends Migration
             $table->integer('user_id')->nullable();
             $table->integer('updated_by')->nullable();
             $table->enum('status', ['ACTIVE', 'INACTIVE', 'DELETED', 'REJECTED', 'PENDING', 'BLOCKED'])->default('ACTIVE');
+            $table->enum('request_type', ['MISSION_REQUEST',])->default('MISSION_REQUEST');
 
             $table->timestamps();
         });

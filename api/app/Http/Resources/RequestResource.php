@@ -17,6 +17,7 @@ class RequestResource extends JsonResource
     public function toArray($request): array
     {
         return [
+            'id' => $this->id,
             // 'href' => 'request/' . $this->id,
             // 'nomemp' => $this->nomemp,
             // 'premp' => $this->premp,
@@ -28,6 +29,8 @@ class RequestResource extends JsonResource
             'location' => $this->location,
             'desciption' => $this->desciption,
             'object' => $this->object,
+            'status' => $this->status,
+            'request_type' => $this->request_type,
             'user' => $this->getUseResource(),
             'updated_by' => $this->getUpdatedBy(),
             'created_at' => Carbon::parse($this->created_at)->format('d/m/Y H:i'),

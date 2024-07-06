@@ -72,7 +72,7 @@ function RequestFormBase({ open, handleClose, requestData }) {
    */
   const onSubmit = async (data) => {
     try {
-      console.table(data);
+      // console.table(data);
       dispatch(saveUserRequest(formatData(data)));
       //   handleClose();
     } catch (error) {
@@ -95,6 +95,7 @@ function RequestFormBase({ open, handleClose, requestData }) {
     return {
       ...data,
       user_id: user?.id,
+      request_type: requestData?.id ?? null,
     };
   };
 

@@ -63,7 +63,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::group(['prefix' => 'requests'], function () {
                 Route::get('/',   [RequestBookingController::class, 'get']);
                 Route::post('/',   [RequestBookingController::class, 'store']);
-                // Route::delete('/', [RequestBookingController::class, 'delete']);
+                Route::delete('/', [RequestBookingController::class, 'delete']);
             });
         });
     });

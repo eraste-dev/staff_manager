@@ -1,3 +1,9 @@
 export const MISSION_REQUEST_KEY = 'MISSION_REQUEST';
 export const ABSENCE_REQUEST_KEY = 'ABSENCE_REQUEST';
 export const CONGESS_REQUEST_KEY = 'CONGES_REQUEST';
+
+export const ACTION_DELETE = '@@ids/ACTION_DELETE';
+export const ACTION_UPDATE = '@@ids/ACTION_UPDATE';
+export const ACTION_CREATE = '@@ids/ACTION_CREATE';
+export const ACTION_CLEAR = '@@ids/ACTION_CLEAR';
+export const ACTION_FETCH_ALL = '@@ids/ACTION_FETCH_ALL';

@@ -69,9 +69,43 @@ class RequestBookingController extends Controller
             $demande = new RequestModel();
             $demande->fill($validatedData);
             $demande->status = 'PENDING';
+            $demande->updated_by = auth()->user()->id;
             $demande->save();
         }
 
         return ResponseService::success($demande->refresh(), "Store successfully");
+    }
+
+    /**
+     * Delete a request from the database.
+     *
+     * @param Request $request The HTTP request containing the request ID.
+     * @return \Illuminate\Http\JsonResponse The JSON response indicating the success or failure of the deletion.
+     */
+    public function delete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer|exists:requests,id',
+        ]);
+
+        if ($validator->fails()) {
+            return ResponseService::error(
+                "Demande non trouvée " . implode(', ', $validator->errors()->all()),
+                404,
+                $validator->errors()
+            );
+        }
+
+        // Enregistrer les données dans la base de données
+        $validatedData = $validator->validated();
+
+        if (isset($validatedData['id'])) {
+            $demande = RequestModel::find($validatedData['id']);
+            $demande->status = Utils::STATE_DELETED();
+            $demande->updated_by = auth()->user()->id;
+            $demande->update($validatedData);
+        }
+
+        return ResponseService::success([], "Suppression effectuée avec succès");
     }
 }

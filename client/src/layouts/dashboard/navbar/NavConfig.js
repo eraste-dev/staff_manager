@@ -49,6 +49,9 @@ const navConfig = [
           // { title: 'account', path: PATH_DASHBOARD.user.account },
         ],
       },
+      // { title: 'Toutes les Demandes', path: PATH_DASHBOARD.general.booking, icon: ICONS },
+      // { title: 'Toutes les Demandes', path: PATH_DASHBOARD.general.userRequest, icon: ICONS.banking },
+      // { title: 'Toutes les Demandes', path: PATH_DASHBOARD.general.userRequest, icon: ICONS.banking },
     ],
   },
 

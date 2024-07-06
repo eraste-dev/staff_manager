@@ -3,6 +3,7 @@ import sum from 'lodash/sum';
 import uniqBy from 'lodash/uniqBy';
 import axios from '../../utils/axios';
 import { dispatch } from '../store';
+import { ACTION_DELETE, ACTION_FETCH_ALL } from 'src/pages/dashboard/create-request-form/ids.constant';
 
 // ----------------------------------------------------------------------
 
@@ -21,7 +22,8 @@ const initialState = {
     error: null,
     success: false,
     successMessage: null,
-    requests: [],
+    requests: null,
+    actionType: null,
   },
 };
 
@@ -45,9 +47,10 @@ const slice = createSlice({
      * @param {Object} state - The state object.
      * @return {void}
      */
-    startUserRequestLoading(state) {
+    startUserRequestLoading(state, action) {
       state.userRequest.successMessage = null;
       state.userRequest.isLoading = true;
+      state.userRequest.actionType = action?.payload?.actionType || null;
     },
 
     /**
@@ -93,7 +96,9 @@ const slice = createSlice({
         isLoading: false,
         success: false,
         successMessage: null,
-        requests: [],
+        requests: null,
+        actionType: action?.payload?.actionType ?? null,
+        actionTimeExpire: null,
       };
     },
 
@@ -199,6 +204,23 @@ const slice = createSlice({
       state.userRequest.success = true;
       // state.userRequest.requests.push(action.payload.data);
     },
+
+    /**
+     * Updates the state with the success of deleting a user request.
+     *
+     * @param {Object} state - The current state of the user slice.
+     * @param {Object} action - The action object containing payload data.
+     */
+    deleteUserRequestSuccess(state, action) {
+      state.userRequest.isLoading = false;
+      state.userRequest.success = true;
+      state.userRequest.actionType = ACTION_DELETE;
+      state.userRequest.error = null;
+      // state.userRequest.requests = null; // onDelete clear request list
+      // Ajouter 10 secondes d'expiration
+      const currentTime = new Date().getTime();
+      state.userRequest.actionTimeExpire = currentTime + 10000; // 10 secondes en millisecondes
+    },
   },
 });
 
@@ -294,15 +316,27 @@ export function getNotifications(payload) {
  *
  * @return {Promise<void>} A Promise that resolves when user requests are successfully fetched.
  */
-export function getUserRequests() {
+export function getUserRequests(payload) {
   return async () => {
-    dispatch(slice.actions.startUserRequestLoading());
+    // dispatch(slice.actions.initializeUserRequest());
+    dispatch(slice.actions.startUserRequestLoading({ actionType: ACTION_FETCH_ALL }));
     try {
-      const response = await axios.get('/user/requests');
+      const response = await axios.get('/user/requests' + payload);
       dispatch(slice.actions.getUserRequestSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasErrorUserRequest(error));
     }
+  };
+}
+
+/**
+ * Initiates the user request process.
+ *
+ * @return {Promise<void>} A Promise that resolves when the user request initialization is successful.
+ */
+export function initUserRequest() {
+  return async () => {
+    dispatch(slice.actions.initializeUserRequest());
   };
 }
 
@@ -326,12 +360,20 @@ export function saveUserRequest(payload) {
 }
 
 /**
- * Initiates the user request process.
+ * Deletes a user request by sending a DELETE request to '/user/requests' endpoint.
  *
- * @return {Promise<void>} A Promise that resolves when the user request initialization is successful.
+ * @param {Object} payload - The payload containing the user request data to be deleted.
+ * @return {Promise<void>} A Promise that resolves when the user request is successfully deleted,
+ * or rejects with an error if the deletion fails.
  */
-export function initUserRequest() {
+export function deleteUserRequest(payload) {
   return async () => {
-    dispatch(slice.actions.initializeUserRequest());
+    dispatch(slice.actions.startUserRequestLoading({ actionType: ACTION_DELETE }));
+    try {
+      const response = await axios.delete('/user/requests', { data: payload });
+      dispatch(slice.actions.deleteUserRequestSuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasErrorUserRequest(error));
+    }
   };
 }

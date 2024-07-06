@@ -60,7 +60,7 @@ class RequestModel extends Model
     public function getUpdatedBy()
     {
         $user = User::find($this->updated_by);
-        if ($user) {
+        if ($user != null) {
             return new UserResource($user);
         } else {
             return null;
