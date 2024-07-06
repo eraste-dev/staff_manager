@@ -16,6 +16,13 @@ const initialState = {
   user: {},
   expire: null,
   notifications: undefined,
+  userRequest: {
+    isLoading: false,
+    error: null,
+    success: false,
+    successMessage: null,
+    requests: [],
+  },
 };
 
 const slice = createSlice({
@@ -30,6 +37,17 @@ const slice = createSlice({
      */
     startLoading(state) {
       state.isLoading = true;
+    },
+
+    /**
+     * Sets the isLoading property of the userRequest state object to true.
+     *
+     * @param {Object} state - The state object.
+     * @return {void}
+     */
+    startUserRequestLoading(state) {
+      state.userRequest.successMessage = null;
+      state.userRequest.isLoading = true;
     },
 
     /**
@@ -48,6 +66,35 @@ const slice = createSlice({
       // state.expire = null;
       // state.token = null;
       // state.user = null;
+    },
+
+    /**
+     * Updates the state when an error occurs in the user request.
+     *
+     * @param {Object} state - The current state of the user slice.
+     * @param {Object} action - The action object containing the payload data.
+     */
+    hasErrorUserRequest(state, action) {
+      state.userRequest.isLoading = false;
+      state.userRequest.error = action.payload?.error;
+      state.userRequest.success = false;
+      state.userRequest.successMessage = null;
+    },
+
+    /**
+     * Initializes the user request state object with default values.
+     *
+     * @param {Object} state - The current state of the user slice.
+     * @param {Object} action - The action object containing the payload data.
+     */
+    initializeUserRequest(state, action) {
+      state.userRequest = {
+        error: null,
+        isLoading: false,
+        success: false,
+        successMessage: null,
+        requests: [],
+      };
     },
 
     /**
@@ -126,6 +173,32 @@ const slice = createSlice({
       state.isLoading = false;
       state.error = null;
     },
+
+    /**
+     * Updates the state with the success of getting user requests.
+     *
+     * @param {Object} state - The current state of the user slice.
+     * @param {Object} action - The action object containing payload data.
+     * @return {void}
+     */
+    getUserRequestSuccess(state, action) {
+      state.userRequest.isLoading = false;
+      state.userRequest.success = true;
+      state.userRequest.successMessage = action.payload.message;
+      state.userRequest.requests = action.payload.data;
+    },
+
+    /**
+     * Updates the state with the success of storing a user request.
+     *
+     * @param {Object} state - The current state of the user slice.
+     * @param {Object} action - The action object containing payload data.
+     */
+    storeUserRequestSuccess(state, action) {
+      state.userRequest.isLoading = false;
+      state.userRequest.success = true;
+      // state.userRequest.requests.push(action.payload.data);
+    },
   },
 });
 
@@ -198,6 +271,12 @@ export function updateAccount(payload) {
   };
 }
 
+/**
+ * Retrieves notifications for the user.
+ *
+ * @param {Object} payload - The payload for fetching notifications.
+ * @return {Promise<void>} A Promise that resolves when notifications are successfully fetched.
+ */
 export function getNotifications(payload) {
   return async () => {
     dispatch(slice.actions.startLoading());
@@ -207,5 +286,52 @@ export function getNotifications(payload) {
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
+  };
+}
+
+/**
+ * Retrieves user requests by sending a GET request to '/user/requests'.
+ *
+ * @return {Promise<void>} A Promise that resolves when user requests are successfully fetched.
+ */
+export function getUserRequests() {
+  return async () => {
+    dispatch(slice.actions.startUserRequestLoading());
+    try {
+      const response = await axios.get('/user/requests');
+      dispatch(slice.actions.getUserRequestSuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasErrorUserRequest(error));
+    }
+  };
+}
+
+/**
+ * Saves a user request by sending a POST request to '/user/requests' endpoint.
+ *
+ * @param {Object} payload - The payload containing the user request data.
+ * @return {Promise<void>} A Promise that resolves when the user request is successfully saved,
+ * or rejects with an error if the request fails.
+ */
+export function saveUserRequest(payload) {
+  return async () => {
+    dispatch(slice.actions.startUserRequestLoading());
+    try {
+      const response = await axios.post('/user/requests', payload);
+      dispatch(slice.actions.storeUserRequestSuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasErrorUserRequest(error));
+    }
+  };
+}
+
+/**
+ * Initiates the user request process.
+ *
+ * @return {Promise<void>} A Promise that resolves when the user request initialization is successful.
+ */
+export function initUserRequest() {
+  return async () => {
+    dispatch(slice.actions.initializeUserRequest());
   };
 }

@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
             'foncemp' => '',
             'avatar' => '/images/users/avatars/logo-sociba-400xauto.png',
             'remember_token' => null,
-            'type' => 'EMPLOYEE',
+            'type' => 'ADMIN', // 'EMPLOYEE'
             'status' => 'ACTIVE',
         ]);
     }

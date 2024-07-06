@@ -12,6 +12,12 @@ const RootStyle = styled(Card)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'space-between',
   padding: theme.spacing(2, 2, 2, 3),
+  cursor: 'pointer',
+  border: `solid 1px transparent`,
+  '&:hover': {
+    boxShadow: theme.customShadows.z20,
+    borderColor: theme.palette.primary.main,
+  },
 }));
 
 // ----------------------------------------------------------------------

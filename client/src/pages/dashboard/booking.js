@@ -34,6 +34,8 @@ import {
 } from '../../assets';
 import { useState } from 'react';
 import RequestFormBase from './create-request-form/RequestFormBase';
+import { MISSION_REQUEST_KEY } from './create-request-form/ids.constant';
+import { useSelector } from 'react-redux';
 
 // ----------------------------------------------------------------------
 
@@ -46,6 +48,8 @@ GeneralBooking.getLayout = function getLayout(page) {
 export default function GeneralBooking() {
   const { themeStretch } = useSettings();
   const md = 6;
+
+  const { user, userRequest } = useSelector((state) => state.user);
 
   const [open, setOpen] = useState(false);
   const [requestData, setRequestData] = useState({
@@ -62,11 +66,13 @@ export default function GeneralBooking() {
 
   const BookingWidgetSummaryArray = [
     {
+      id: 'absence-request',
       title: "Demande d'absences",
       total: "Demande d'absence",
       icon: <BookingIllustration />,
     },
     {
+      id: MISSION_REQUEST_KEY,
       title: "Demande d'autorisations de missions",
       total: 311000,
       icon: <CheckOutIllustration />,
@@ -118,11 +124,16 @@ export default function GeneralBooking() {
   return (
     <Page title="General: Banking">
       <Container maxWidth={themeStretch ? false : 'xl'}>
-        <Box>
-          <Button variant="outlined" color="warning" onClick={handleClickOpen}>
-            Form Dialogs
-          </Button>
-        </Box>
+        {/* <Box sx={{ pb: 5 }}>
+          {userRequest &&
+            userRequest.sucess &&
+            userRequest.sucessMessage &&
+            setTimeout(() => {
+              <Alert severity="success" sx={{ mt: 2, mb: 1 }}>
+                {userRequest.sucessMessage}
+              </Alert>;
+            }, 5000)}
+        </Box> */}
 
         <Grid container spacing={3}>
           {BookingWidgetSummaryArray.map((item, index) => (

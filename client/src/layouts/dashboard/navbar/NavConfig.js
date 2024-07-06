@@ -41,7 +41,8 @@ const navConfig = [
         icon: ICONS.user,
         children: [
           { title: 'Creer une demande', path: PATH_DASHBOARD.general.booking },
-          { title: 'Mes demandes', path: PATH_DASHBOARD.user.new },
+          { title: 'Toutes les Demandes', path: PATH_DASHBOARD.general.userRequest },
+          { title: 'Mes demandes', path: PATH_DASHBOARD.general.userRequest },
           // { title: 'profile', path: PATH_DASHBOARD.user.profile },
           // { title: 'cards', path: PATH_DASHBOARD.user.cards },
           // { title: 'edit', path: PATH_DASHBOARD.user.demoEdit },
