@@ -2,13 +2,20 @@ import PropTypes from 'prop-types';
 import { useState } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Avatar, Checkbox, TableRow, TableCell, Typography, MenuItem, Box, Button } from '@mui/material';
+import { Avatar, Checkbox, TableRow, TableCell, Typography, MenuItem, Box, Button, Grid, Divider } from '@mui/material';
 // components
 import Label from '../../../../components/Label';
 import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
 import RequestDetailsModal from './RequestDetailsModal';
 import ConfirmationModal from 'src/components/dialog/ConfirmationModal';
+import { getStatus, getStatusColor } from 'src/utils/utils.util';
+import StatusDropdown from './StatusDropdown';
+import { useDispatch } from 'react-redux';
+import EditUserRequestModal from 'src/components/dialog/EditUserRequestModal';
+import { BookingIllustration } from 'src/assets';
+import RequestFormBase from 'src/pages/dashboard/create-request-form/RequestFormBase';
+import { MISSION_REQUEST_KEY } from 'src/pages/dashboard/create-request-form/ids.constant';
 
 // ----------------------------------------------------------------------
 
@@ -22,6 +29,7 @@ UserRequestTableRow.propTypes = {
 
 export default function UserRequestTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
+  const dispatch = useDispatch();
 
   const { user, avatarUrl, mission, desciption, location, status } = row;
   const { nomemp, premp, email, matemp, foncemp, password, type } = user;
@@ -29,7 +37,15 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
   const [openMenu, setOpenMenuActions] = useState(null);
   const [openDetail, setOpenDetail] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [openConfirmChangeState, setOpenConfirmChangeState] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [editState, setEditState] = useState(false);
+
+  const [requestData, setRequestData] = useState({
+    title: "Demande d'absences",
+    total: "Demande d'absence",
+    icon: <BookingIllustration />,
+  });
+  // const [openConfirmChangeState, setOpenConfirmChangeState] = useState(false);
 
   const handleOpenDetail = () => setOpenDetail(true);
 
@@ -39,64 +55,44 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
 
   const handleCloseMenu = () => setOpenMenuActions(null);
 
+  /**
+   * Opens the delete modal and closes the menu.
+   *
+   * @return {void}
+   */
   const handleOpenDelete = () => {
     setOpenDelete(true);
     handleCloseMenu();
   };
 
+  /**
+   * Closes the delete modal and handles closing the menu.
+   *
+   * @return {void}
+   */
   const handleCloseDelete = () => {
     setOpenDelete(false);
     handleCloseMenu();
   };
 
-  const handleOpenConfirmChangeState = () => {
-    setOpenConfirmChangeState(true);
-    handleCloseMenu();
+  const handleOpenEdit = () => {
+    if (row && row.request_type) {
+      setRequestData({ ...requestData, id: row.request_type, data: row });
+      setOpenEdit(true);
+      // onEditRow
+      handleCloseMenu();
+    }
   };
 
   /**
-   * Returns the corresponding French translation for a given status.
+   * Closes the edit modal and handles closing the menu.
    *
-   * @param {string} status - The status to translate.
-   * @return {string} The French translation of the status.
+   * @return {void}
    */
-  function getStatus(status) {
-    switch (status) {
-      case 'ACTIVE':
-        return 'Actif';
-      case 'INACTIVE':
-        return 'Inactif';
-      case 'DELETED':
-        return 'Supprimé';
-      case 'REJECTED':
-        return 'Rejeté';
-      case 'PENDING':
-        return 'En attente';
-      case 'BLOCKED':
-        return 'Bloqué';
-      default:
-        return 'Statut inconnu';
-    }
-  }
-
-  function getStatusColor(status) {
-    switch (status) {
-      case 'ACTIVE':
-        return 'success';
-      case 'INACTIVE':
-        return 'warning';
-      case 'DELETED':
-        return 'error';
-      case 'REJECTED':
-        return 'error';
-      case 'PENDING':
-        return 'warning';
-      case 'BLOCKED':
-        return 'error';
-      default:
-        return 'error';
-    }
-  }
+  const handleCloseEdit = () => {
+    setOpenEdit(false);
+    handleCloseMenu();
+  };
 
   return (
     <TableRow hover selected={selected}>
@@ -113,35 +109,48 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
 
       <TableCell align="left">{matemp}</TableCell>
 
-      {/* <TableCell align="left">{desciption}</TableCell> */}
-
       <TableCell align="left" sx={{ textJustify: 'justify' }}>
-        {mission}
+        {mission && 'Mission : ' + mission}
       </TableCell>
 
       <TableCell align="center" sx={{ textAlign: 'justify' }}>
         {location && <Box>Lieu de mission : {location}</Box>}
-        <hr />
-        {desciption && desciption.slice(0, 30) + '...'}
+        <Divider />
+        {desciption.length > 300 ? desciption.slice(0, 300) + '...' : desciption}
       </TableCell>
 
       <TableCell align="left">
-        <Label
-          variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-          color={getStatusColor(status)}
-          sx={{ textTransform: 'capitalize' }}
+        <Grid
+          container
+          justifyContent={{ xs: 'center', md: 'space-between' }}
+          sx={{ textAlign: { xs: 'center', md: 'left' } }}
         >
-          {getStatus(status)}
-        </Label>
+          <Grid item lg={12} sx={{ mb: 3 }}>
+            {!editState && (
+              <>
+                <Label
+                  variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
+                  color={getStatusColor(status)}
+                  sx={{ textTransform: 'capitalize' }}
+                >
+                  {getStatus(status)}
+                </Label>
+
+                <Button onClick={() => setEditState(true)}>
+                  <Iconify icon={'eva:edit-fill'} />
+                </Button>
+              </>
+            )}
+          </Grid>
+          <Grid item lg={12} sx={{ mb: 3 }}>
+            {editState && <StatusDropdown handleClose={() => setEditState(false)} current={row} />}
+          </Grid>
+        </Grid>
       </TableCell>
 
       <TableCell align="right">
         <Button variant="outlined" color="secondary" onClick={handleOpenDetail} sx={{ mr: 1 }}>
           <Iconify icon={'eva:eye-fill'} />
-        </Button>
-
-        <Button variant="outlined" color="primary" onClick={handleOpenDetail}>
-          <Iconify icon={'eva:check-fill'} /> Valider
         </Button>
 
         <RequestDetailsModal
@@ -151,19 +160,8 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
           handleOpen={handleOpenDetail}
         />
 
-        {/* CONFIRM CHANGE TYPE */}
-        <ConfirmationModal
-          title="Confirmation l'activation du"
-          message="Êtes-vous sûr de vouloir supprimer cette demande ?"
-          confirmText="Valider"
-          cancelText="Annuler"
-          handleDelete={() => {
-            // onDeleteRow();
-            handleOpenConfirmChangeState();
-          }}
-          handleClose={handleCloseDelete}
-          open={openConfirmChangeState}
-        />
+        {/* UPDATE */}
+        <RequestFormBase open={openEdit} handleClose={handleCloseEdit} requestData={requestData} />
 
         {/* DELETE */}
         <ConfirmationModal
@@ -171,12 +169,12 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
           message="Êtes-vous sûr de vouloir supprimer cette demande ?"
           confirmText="Supprimer"
           cancelText="Annuler"
+          handleClose={handleCloseDelete}
+          open={openDelete}
           handleDelete={() => {
             onDeleteRow();
             handleCloseDelete();
           }}
-          handleClose={handleCloseDelete}
-          open={openDelete}
         />
 
         <TableMoreMenu
@@ -185,12 +183,7 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
           onClose={handleCloseMenu}
           actions={
             <>
-              <MenuItem
-                onClick={() => {
-                  onEditRow();
-                  handleCloseMenu();
-                }}
-              >
+              <MenuItem onClick={handleOpenEdit}>
                 <Iconify icon={'eva:edit-fill'} />
                 Modifier
               </MenuItem>

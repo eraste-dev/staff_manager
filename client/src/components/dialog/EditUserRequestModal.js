@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from '@mui/material';
 
-const ConfirmationModal = ({ title, message, confirmText, cancelText, handleDelete, open, handleClose }) => {
+const EditUserRequestModal = ({ title, message, confirmText, cancelText, handleSubmit, open, handleClose }) => {
   return (
     <>
       <Dialog open={open} onClose={handleClose}>
@@ -17,7 +17,7 @@ const ConfirmationModal = ({ title, message, confirmText, cancelText, handleDele
             {cancelText}
           </Button>
 
-          <Button onClick={handleDelete} color="error">
+          <Button onClick={handleSubmit} color="error">
             {confirmText}
           </Button>
         </DialogActions>
@@ -26,13 +26,13 @@ const ConfirmationModal = ({ title, message, confirmText, cancelText, handleDele
   );
 };
 
-ConfirmationModal.propTypes = {
+EditUserRequestModal.propTypes = {
   title: PropTypes.string.isRequired,
   message: PropTypes.string.isRequired,
   confirmText: PropTypes.string.isRequired,
   cancelText: PropTypes.string.isRequired,
-  // onDelete: PropTypes.func.isRequired,
-  // onClose: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
-export default ConfirmationModal;
+export default EditUserRequestModal;

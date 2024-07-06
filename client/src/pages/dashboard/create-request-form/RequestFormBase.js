@@ -22,8 +22,8 @@ import { useSnackbar } from 'notistack';
 import { RHFTextField } from 'src/components/hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { MISSION_REQUEST_KEY } from './ids.constant';
-import { initUserRequest, saveUserRequest } from 'src/redux/slices/user';
+import { ACTION_UPDATE, MISSION_REQUEST_KEY } from './ids.constant';
+import { getUserRequests, initUserRequest, saveUserRequest } from 'src/redux/slices/user';
 
 function RequestFormBase({ open, handleClose, requestData }) {
   const isMountedRef = useIsMountedRef();
@@ -53,6 +53,10 @@ function RequestFormBase({ open, handleClose, requestData }) {
     matemp: user && user?.matemp ? user?.matemp : '',
     foncemp: user && user?.foncemp ? user?.foncemp : '',
     email: user && user?.email ? user?.email : '',
+
+    location: userRequest && userRequest.data ? userRequest.data.location : '',
+    desciption: userRequest && userRequest.data ? userRequest.data.desciption : '',
+    object: userRequest && userRequest.data ? userRequest.data.object : '',
   };
 
   const methods = useForm({ resolver: yupResolver(FormSchema), defaultValues });
@@ -61,7 +65,7 @@ function RequestFormBase({ open, handleClose, requestData }) {
     reset,
     setError,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isSubmitted, isValid },
   } = methods;
 
   /**
@@ -87,15 +91,22 @@ function RequestFormBase({ open, handleClose, requestData }) {
   /**
    * Returns a new object with the properties of the input data object,
    * along with an additional property "id" set to the value of the user's id.
+   * Throws an error if the user or requestData is null.
    *
    * @param {Object} data - The input data object.
    * @return {Object} The new object with the formatted data.
+   * @throws {Error} If user or requestData is null.
    */
   const formatData = (data) => {
+    if (!user || !requestData) {
+      throw new Error('Invalid user or requestData');
+    }
+
     return {
       ...data,
       user_id: user?.id,
       request_type: requestData?.id ?? null,
+      id: requestData?.data?.id ?? null,
     };
   };
 
@@ -117,10 +128,15 @@ function RequestFormBase({ open, handleClose, requestData }) {
 
   // On success of request
   useEffect(() => {
-    if (userRequest && !userRequest.isLoading) {
+    if (userRequest && !userRequest.isLoading && userRequest.actionType === ACTION_UPDATE && isSubmitted) {
       if (userRequest.success) {
         enqueueSnackbar('Demande envoyée avec succès', { variant: 'success' });
         dispatch(initUserRequest());
+        if (requestData && requestData.data?.id) {
+          // TODO : use useEffect to single fetchAll
+          const payload = user && !user?.isAdmin && user?.id ? `?user_id=${user?.id}` : '';
+          dispatch(getUserRequests(payload));
+        }
         handleClose();
       }
     }
@@ -128,7 +144,7 @@ function RequestFormBase({ open, handleClose, requestData }) {
 
   // on error in request
   useEffect(() => {
-    if (userRequest && !userRequest.isLoading) {
+    if (userRequest && !userRequest.isLoading && userRequest.actionType === ACTION_UPDATE && isSubmitted) {
       if (userRequest.error) {
         enqueueSnackbar(userRequest.error, { variant: 'error' });
       }
@@ -140,6 +156,8 @@ function RequestFormBase({ open, handleClose, requestData }) {
       <form onSubmit={handleSubmit(onSubmit)}>
         <Dialog maxWidth="md" fullWidth={true} open={open} onClose={handleClose}>
           <DialogTitle> {requestData && requestData.title} </DialogTitle>
+
+          {!isValid && console.log(errors)}
 
           <DialogContent>
             <DialogContentText>
@@ -181,15 +199,29 @@ function RequestFormBase({ open, handleClose, requestData }) {
               {isMissionRequest() && (
                 <>
                   <Grid item xs={12} md={6} lg={6}>
-                    <RHFTextField name="location" label="Lieu de mission" />
+                    <RHFTextField
+                      name="location"
+                      label="Lieu de mission"
+                      defaultValue={(requestData && requestData.data && requestData.data.location) || ''}
+                    />
                   </Grid>
 
                   <Grid item xs={12} md={6} lg={6}>
-                    <RHFTextField name="desciption" label="But de la mission" />
+                    <RHFTextField
+                      name="desciption"
+                      label="But de la mission"
+                      defaultValue={(requestData && requestData.data && requestData.data.desciption) || ''}
+                    />
                   </Grid>
 
                   <Grid item xs={12} md={12}>
-                    <RHFTextField name="object" label="Interêt de la mission" />
+                    <RHFTextField
+                      name="object"
+                      label="Interêt de la mission"
+                      // multiline
+                      // rows={4}
+                      defaultValue={(requestData && requestData.data && requestData.data.object) || ''}
+                    />
                   </Grid>
                 </>
               )}
@@ -197,11 +229,22 @@ function RequestFormBase({ open, handleClose, requestData }) {
           </DialogContent>
 
           <DialogActions>
-            <Button onClick={handleClose} color="inherit">
+            <Button
+              onClick={() => {
+                handleClose();
+                reset();
+              }}
+              color="inherit"
+            >
               Annuler
             </Button>
 
-            <Button type="submit" onClick={handleSubmit(onSubmit)} variant="contained">
+            <Button
+              type="submit"
+              onClick={handleSubmit(onSubmit)}
+              disabled={isSubmitting || !isValid}
+              variant="contained"
+            >
               Envoyer la demande
             </Button>
           </DialogActions>

@@ -3,7 +3,7 @@ import sum from 'lodash/sum';
 import uniqBy from 'lodash/uniqBy';
 import axios from '../../utils/axios';
 import { dispatch } from '../store';
-import { ACTION_DELETE, ACTION_FETCH_ALL } from 'src/pages/dashboard/create-request-form/ids.constant';
+import { ACTION_DELETE, ACTION_FETCH_ALL, ACTION_UPDATE } from 'src/pages/dashboard/create-request-form/ids.constant';
 
 // ----------------------------------------------------------------------
 
@@ -349,7 +349,7 @@ export function initUserRequest() {
  */
 export function saveUserRequest(payload) {
   return async () => {
-    dispatch(slice.actions.startUserRequestLoading());
+    dispatch(slice.actions.startUserRequestLoading({ actionType: ACTION_UPDATE }));
     try {
       const response = await axios.post('/user/requests', payload);
       dispatch(slice.actions.storeUserRequestSuccess(response.data));

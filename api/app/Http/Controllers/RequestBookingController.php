@@ -34,14 +34,15 @@ class RequestBookingController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => 'nullable|integer|exists:request,id',
+            'id' => 'nullable|integer|exists:requests,id',
             // 'nomemp' => 'nullable|string',
             // 'premp' => 'nullable|string',
             // 'matemp' => 'nullable|string',
             // 'foncemp' => 'nullable|string',
             // 'email' => 'nullable|email',
-            'user_id' => 'required|integer|exists:users,id',
+            'user_id' => 'nullable|integer|exists:users,id',
             'mission' => 'nullable|string',
+            'status' => 'nullable|string|in:PENDING,ACTIVE,INACTIVE,DELETED,REJECTED,BLOCKED',
             'location' => 'nullable|string',
             'desciption' => 'nullable|string',
             'object' => 'nullable|string',
@@ -61,9 +62,11 @@ class RequestBookingController extends Controller
         if (isset($validatedData['id'])) {
             // ? UPDATE
             $demande = RequestModel::find($validatedData['id']);
+            $demande->fill($validatedData);
             $demande->status = $validatedData['status'] ?? $demande->status;
             $demande->updated_by = auth()->user()->id;
-            $demande->update($validatedData);
+            // dd($demande);
+            $demande->update();
         } else {
             // ? CREATION
             $demande = new RequestModel();

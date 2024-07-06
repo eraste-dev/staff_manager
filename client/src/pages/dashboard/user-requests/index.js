@@ -186,7 +186,6 @@ export default function UserRequestList() {
   // * SHOW NOTIFICATION SUCCESS AFTER DELETE
   useEffect(() => {
     console.log(
-      'check condition',
       userRequest &&
         userRequest.actionType === ACTION_DELETE &&
         userRequest.success &&
