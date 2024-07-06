@@ -1,5 +1,16 @@
 // @mui
-import { Grid, Container } from '@mui/material';
+import {
+  Grid,
+  Container,
+  Box,
+  Button,
+  Dialog,
+  TextField,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
+} from '@mui/material';
 // hooks
 import useSettings from '../../hooks/useSettings';
 // layouts
@@ -7,17 +18,7 @@ import Layout from '../../layouts';
 // components
 import Page from '../../components/Page';
 // sections
-import {
-  BookingDetails,
-  BookingBookedRoom,
-  BookingTotalIncomes,
-  BookingRoomAvailable,
-  BookingNewestBooking,
-  BookingWidgetSummary,
-  BookingCheckInWidgets,
-  BookingCustomerReviews,
-  BookingReservationStats,
-} from '../../sections/@dashboard/general/booking';
+import { BookingWidgetSummary } from '../../sections/@dashboard/general/booking';
 // assets
 import {
   BookingIllustration,
@@ -27,12 +28,12 @@ import {
   MaintenanceIllustration,
   MotivationIllustration,
   OrderCompleteIllustration,
-  PageNotFoundIllustration,
-  PlanFreeIcon,
   PlanPremiumIcon,
   SentIcon,
   SeoIllustration,
 } from '../../assets';
+import { useState } from 'react';
+import RequestFormBase from './create-request-form/RequestFormBase';
 
 // ----------------------------------------------------------------------
 
@@ -45,6 +46,20 @@ GeneralBooking.getLayout = function getLayout(page) {
 export default function GeneralBooking() {
   const { themeStretch } = useSettings();
   const md = 6;
+
+  const [open, setOpen] = useState(false);
+  const [requestData, setRequestData] = useState({
+    title: "Demande d'absences",
+    total: "Demande d'absence",
+    icon: <BookingIllustration />,
+  });
+  const handleClickOpen = (item) => {
+    if (item) setRequestData(item);
+    setOpen(true);
+  };
+
+  const handleClose = () => setOpen(false);
+
   const BookingWidgetSummaryArray = [
     {
       title: "Demande d'absences",
@@ -103,48 +118,23 @@ export default function GeneralBooking() {
   return (
     <Page title="General: Banking">
       <Container maxWidth={themeStretch ? false : 'xl'}>
+        <Box>
+          <Button variant="outlined" color="warning" onClick={handleClickOpen}>
+            Form Dialogs
+          </Button>
+        </Box>
+
         <Grid container spacing={3}>
           {BookingWidgetSummaryArray.map((item, index) => (
             <Grid item xs={12} md={md} key={index}>
-              <BookingWidgetSummary {...item} />
+              <div sx={{ cursor: 'pointer' }} onClick={() => handleClickOpen(item)}>
+                <BookingWidgetSummary {...item} />
+              </div>
             </Grid>
           ))}
-          {/* <Grid item xs={12} md={8}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <BookingTotalIncomes />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <BookingBookedRoom />
-              </Grid>
-
-              <Grid item xs={12} md={12}>
-                <BookingCheckInWidgets />
-              </Grid>
-            </Grid>
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <BookingRoomAvailable />
-          </Grid>
-
-          <Grid item xs={12} md={8}>
-            <BookingReservationStats />
-          </Grid>
-
-          <Grid item xs={12} md={4}>
-            <BookingCustomerReviews />
-          </Grid>
-
-          <Grid item xs={12}>
-            <BookingNewestBooking />
-          </Grid>
-
-          <Grid item xs={12}>
-            <BookingDetails />
-          </Grid> */}
         </Grid>
+
+        <RequestFormBase open={open} handleClose={handleClose} requestData={requestData} />
       </Container>
     </Page>
   );

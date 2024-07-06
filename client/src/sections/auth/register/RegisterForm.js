@@ -40,23 +40,12 @@ export default function RegisterForm() {
     password: Yup.string().required('Password is required'),
   });
 
-  const defaultValues = {
-    nomemp: '',
-    premp: '',
-    matemp: '',
-    foncemp: '',
-    email: '',
-    password: '',
-  };
+  const defaultValues = { nomemp: '', premp: '', matemp: '', foncemp: '', email: '', password: '' };
 
-  const methods = useForm({
-    resolver: yupResolver(RegisterSchema),
-    defaultValues,
-  });
+  const methods = useForm({ resolver: yupResolver(RegisterSchema), defaultValues });
 
   const {
     reset,
-
     setError,
     handleSubmit,
     formState: { errors, isSubmitting },

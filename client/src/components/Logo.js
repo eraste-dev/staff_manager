@@ -13,7 +13,7 @@ const Logo = forwardRef(({ disabledLink = false, sx }, ref) => {
   const PRIMARY_MAIN = theme.palette.primary.main;
   const PRIMARY_DARK = theme.palette.primary.dark;
 
-  const logo = (
+  const logo_old = (
     <Box ref={ref} sx={{ width: 40, height: 40, cursor: 'pointer', ...sx }}>
       <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 512 512">
         <defs>
@@ -45,6 +45,12 @@ const Logo = forwardRef(({ disabledLink = false, sx }, ref) => {
           />
         </g>
       </svg>
+    </Box>
+  );
+
+  const logo = (
+    <Box ref={ref} sx={{ width: 40, height: 40, cursor: 'pointer', fontWeight: 'bold', color: 'text.primary', ...sx }}>
+      Staff Management
     </Box>
   );
 
