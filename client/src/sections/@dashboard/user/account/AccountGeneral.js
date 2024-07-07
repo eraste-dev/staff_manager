@@ -77,7 +77,7 @@ export default function AccountGeneral() {
 
   useEffect(() => {
     if (!isLoading && updateSuccess) {
-      enqueueSnackbar('Inscription reussie');
+      enqueueSnackbar('Mise à jour effectuée');
     }
 
     if (!isLoading && !updateSuccess && error) {

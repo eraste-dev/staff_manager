@@ -133,7 +133,7 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
                   color={getStatusColor(status)}
                   sx={{ textTransform: 'capitalize' }}
                 >
-                  {getStatus(status)}
+                  <span onClick={() => setEditState(true)}>{getStatus(status)}</span>
                 </Label>
 
                 <Button onClick={() => setEditState(true)}>
@@ -149,10 +149,6 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
       </TableCell>
 
       <TableCell align="right">
-        <Button variant="outlined" color="secondary" onClick={handleOpenDetail} sx={{ mr: 1 }}>
-          <Iconify icon={'eva:eye-fill'} />
-        </Button>
-
         <RequestDetailsModal
           request={row}
           open={openDetail}
@@ -183,12 +179,17 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
           onClose={handleCloseMenu}
           actions={
             <>
+              <MenuItem onClick={handleOpenDetail}>
+                <Iconify icon={'eva:eye-fill'} />
+                Voir la demande
+              </MenuItem>
+
               <MenuItem onClick={handleOpenEdit}>
                 <Iconify icon={'eva:edit-fill'} />
                 Modifier
               </MenuItem>
 
-              {user && row && (user?.isAdmin || row?.updated_by === user?.id) && (
+              {user && row && (user?.isAdmin || row?.updated_by === user?.id) && row.status != 'DELETED' && (
                 <MenuItem onClick={handleOpenDelete} sx={{ color: 'error.main' }}>
                   <Iconify icon={'eva:trash-2-outline'} />
                   Supprimer

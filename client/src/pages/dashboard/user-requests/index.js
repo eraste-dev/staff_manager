@@ -20,6 +20,8 @@ import {
   TableContainer,
   TablePagination,
   FormControlLabel,
+  TableRow,
+  TableCell,
 } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
@@ -45,12 +47,14 @@ import { deleteUserRequest, getUserRequests } from 'src/redux/slices/user';
 import TableUserRequestSkeleton from 'src/components/table/user-request/TableUserRequestSkeleton';
 import { TableUserRequestHeadCustom } from 'src/components/table/user-request';
 import UserRequestTableRow from 'src/sections/@dashboard/user/list/UserRequestTableRow';
-import { ACTION_DELETE } from '../create-request-form/ids.constant';
+import { ACTION_DELETE, ACTION_FETCH_ALL } from '../create-request-form/ids.constant';
 import { isExpired } from 'src/utils/utils.util';
+import EmptyContent from 'src/components/EmptyContent';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = ['all', 'active', 'banned'];
+// const STATUS_OPTIONS = ['all', 'active', 'banned'];
+const STATUS_OPTIONS = ['Liste des demadnes'];
 
 const ROLE_OPTIONS = [
   'all',
@@ -232,8 +236,9 @@ export default function UserRequestList() {
           links={[{ name: 'Dashboard', href: PATH_DASHBOARD.root }, { name: 'Demandes' }]}
           action={
             <Button onClick={handleRefresh}>
-              <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
-                {/* <Iconify icon={'eva:plus-fill'} /> */}
+              {/* startIcon={<Iconify icon={'eva:refresh-fill'} />} */}
+              <Button variant="contained">
+                <Iconify icon={'eva:refresh-fill'} />
               </Button>
             </Button>
           }
@@ -255,13 +260,24 @@ export default function UserRequestList() {
 
           <Divider />
 
-          <UserTableToolbar
-            filterName={filterName}
-            filterRole={filterRole}
-            onFilterName={handleFilterName}
-            onFilterRole={handleFilterRole}
-            optionsRole={ROLE_OPTIONS}
-          />
+          {false && (
+            <UserTableToolbar
+              filterName={filterName}
+              filterRole={filterRole}
+              onFilterName={handleFilterName}
+              onFilterRole={handleFilterRole}
+              optionsRole={ROLE_OPTIONS}
+            />
+          )}
+
+          {userRequest && userRequest.isLoading && userRequest.actionType === ACTION_FETCH_ALL && (
+            <>
+              <TableUserRequestSkeleton />
+              <TableUserRequestSkeleton />
+              <TableUserRequestSkeleton />
+              <TableUserRequestSkeleton />
+            </>
+          )}
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800, position: 'relative' }}>
@@ -303,6 +319,14 @@ export default function UserRequestList() {
                 />
 
                 <TableBody>
+                  {userRequest && userRequest?.requests?.length == 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6}>
+                        <EmptyContent title="Aucune demande(s)" />
+                      </TableCell>
+                    </TableRow>
+                  )}
+
                   {userRequest &&
                     userRequest?.requests?.length > 0 &&
                     userRequest?.requests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (

@@ -21,11 +21,11 @@ class RequestBookingController extends Controller
      */
     public function get(Request $request)
     {
-        $all = RequestResource::collection(RequestModel::all());
-        return ResponseService::success(
-            $all, //RequestModel::all(), // $all,
-            Response::HTTP_OK,
-        );
+        $user_id = $request->user_id;
+        $requests = $user_id ? RequestModel::where('user_id', $user_id)->get() : RequestModel::all();
+        $requests = $requests ? RequestResource::collection($requests) : collect();
+
+        return ResponseService::success($requests, Response::HTTP_OK);
     }
 
     /**
