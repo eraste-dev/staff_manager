@@ -16,6 +16,8 @@ import {
 
 const initialState = {
   isLoading: false,
+  isLoadingNotifs: false,
+  errorNotifs: null,
   error: null,
   success: false,
   registerSuccess: false,
@@ -54,6 +56,10 @@ const slice = createSlice({
      */
     startLoading(state) {
       state.isLoading = true;
+    },
+
+    startLoadingNotifs(state) {
+      state.isLoadingNotifs = true;
     },
 
     /**
@@ -211,8 +217,8 @@ const slice = createSlice({
      */
     getNotificationSuccess(state, action) {
       state.notifications = action.payload.data;
-      state.isLoading = false;
-      state.error = null;
+      state.isLoadingNotifs = false;
+      state.errorNotifs = null;
     },
 
     /**
@@ -381,7 +387,7 @@ export function updateAccount(payload) {
  */
 export function getNotifications(payload) {
   return async () => {
-    dispatch(slice.actions.startLoading());
+    dispatch(slice.actions.startLoadingNotifs());
     try {
       const response = await axios.get('/user/notifications', payload);
       dispatch(slice.actions.getNotificationSuccess(response.data));

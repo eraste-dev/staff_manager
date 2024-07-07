@@ -32,10 +32,10 @@ import { getNotifications } from 'src/redux/slices/user';
 
 export default function NotificationsPopover() {
   const dispatch = useDispatch();
-  const { error, isLoading, notifications } = useSelector((state) => state.user);
+  const { errorNotifs, isLoadingNotifs, notifications } = useSelector((state) => state.user);
   // const [notifications, setNotifications] = useState(_notifications);
   // const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
-  const totalUnRead = 0;
+  // const totalUnRead = 0;
   const [open, setOpen] = useState(null);
 
   const handleOpen = (event) => {
@@ -46,20 +46,29 @@ export default function NotificationsPopover() {
     setOpen(null);
   };
 
-  const handleMarkAllAsRead = () => {
-    // setNotifications(
-    //   notifications.map((notification) => ({
-    //     ...notification,
-    //     isUnRead: false,
-    //   }))
-    // );
+  const handleMarkAllAsRead = () => {};
+
+  const refreshNotifications = () => {
+    dispatch(getNotifications());
   };
 
+  const totalUnRead = (notifications && notifications?.filter((item) => item.read_at != true).length) ?? 0;
+
   useEffect(() => {
-    if (!isLoading && !error && !notifications) {
+    if (!isLoadingNotifs && !errorNotifs && !notifications) {
       dispatch(getNotifications());
     }
-  }, [dispatch, error, isLoading, notifications]);
+
+    if (notifications && !isLoadingNotifs) {
+      const intervalId = setInterval(() => {
+        refreshNotifications();
+      }, 5000);
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
+  }, [dispatch, errorNotifs, isLoadingNotifs, notifications, refreshNotifications]);
 
   return (
     <>
@@ -106,7 +115,7 @@ export default function NotificationsPopover() {
             >
               {notifications &&
                 notifications
-                  .slice(0, 2)
+                  .filter((notification) => notification.read_at == null)
                   .map((notification) => <NotificationItem key={notification.id} notification={notification} />)}
             </List>
           )}
@@ -122,7 +131,7 @@ export default function NotificationsPopover() {
             >
               {notifications &&
                 notifications
-                  .slice(2, 5)
+                  .filter((notification) => notification.read_at != null)
                   .map((notification) => <NotificationItem key={notification.id} notification={notification} />)}
             </List>
           )}
@@ -130,13 +139,13 @@ export default function NotificationsPopover() {
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        {notifications && notifications.length > 0 && (
+        {/* {notifications && notifications.length > 0 && (
           <Box sx={{ p: 1 }}>
             <Button fullWidth disableRipple>
               Voir tous
             </Button>
           </Box>
-        )}
+        )} */}
       </MenuPopover>
     </>
   );
@@ -186,7 +195,7 @@ function NotificationItem({ notification }) {
             }}
           >
             <Iconify icon="eva:clock-outline" sx={{ mr: 0.5, width: 16, height: 16 }} />
-            {fToNow(notification.createdAt)}
+            {fToNow(notification.created_at)}
           </Typography>
         }
       />
@@ -201,7 +210,7 @@ function renderContent(notification) {
     <Typography variant="subtitle2">
       {notification.title}
       <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-        &nbsp; {noCase(notification.description)}
+        &nbsp; {noCase(notification?.data?.title)}
       </Typography>
     </Typography>
   );

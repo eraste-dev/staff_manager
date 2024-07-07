@@ -81,13 +81,15 @@ class RequestBookingController extends Controller
 
             // send notification
             try {
+                $demande->refresh();
+                $notifiRequestName = $demande->mission ?? $demande->object ?? $demande->motif ?? '';
                 NotificationService::notify(
                     auth()->user(),
-                    'Vous avez envoyé une demande',
+                    'Vous avez envoyé une demande : ' . $notifiRequestName,
                     'Merci, nous traitons votre demande',
                     [
-                        'title' => 'Nouvelle demande',
-                        'message' => 'Nouvelle demande soumise : ', //  . $user->nomemp . ' ' . $user->premp
+                        'title' => 'Nouvelle demande en attente : ' . $notifiRequestName,
+                        'message' => 'Nouvelle demande soumise : '  . $notifiRequestName,
                     ]
                 );
             } catch (\Throwable $th) {
