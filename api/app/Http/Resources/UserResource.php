@@ -30,6 +30,7 @@ class UserResource extends JsonResource
             'isAdmin' => $this->type === 'ADMIN',
             'status' => $this->status,
             'updated_at' => Carbon::parse($this->updated_at)->format(Utils::DATE_FORMAT()),
+            'count_request' => $this->countUserRequest(),
             // "products" => $this->getProductsByUser($this->id),
             // "count_products" => $this->countProducts()
         ];

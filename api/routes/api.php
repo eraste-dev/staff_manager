@@ -50,6 +50,7 @@ Route::group(['prefix' => 'v1'], function () {
         // ? PROTECTED USER ROUTES
         Route::group(['prefix' => '/user'], function () {
             Route::put('update-profile',   [AuthController::class, 'updateUser'])->name('user.update-profile');
+            Route::delete('delete',        [AuthController::class, 'delete'])->name('user.list');
             Route::get('list',             [UserController::class, 'listUsers'])->name('user.list');
 
             // ? NOTIFICATION USER

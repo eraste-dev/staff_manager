@@ -7,3 +7,7 @@ export const ACTION_UPDATE = '@@ids/ACTION_UPDATE';
 export const ACTION_CREATE = '@@ids/ACTION_CREATE';
 export const ACTION_CLEAR = '@@ids/ACTION_CLEAR';
 export const ACTION_FETCH_ALL = '@@ids/ACTION_FETCH_ALL';
+
+export const ACTION_USERS_FETCH_ALL = '@@ids/ACTION_USERS_FETALL';
+export const ACTION_USERS_UPDATE = '@@ids/ACTION_USERS_UPDATE';
+export const ACTION_USERS_DELETE = '@@ids/ACTION_USERS_DELETE';

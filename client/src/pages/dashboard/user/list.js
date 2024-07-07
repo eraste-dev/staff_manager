@@ -1,5 +1,5 @@
 import { paramCase } from 'change-case';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // next
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
@@ -39,10 +39,14 @@ import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 import { TableEmptyRows, TableHeadCustom, TableNoData, TableSelectedActions } from '../../../components/table';
 // sections
 import { UserTableToolbar, UserTableRow } from '../../../sections/@dashboard/user/list';
+import { useSnackbar } from 'notistack';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteUser, fetchAllUsers } from 'src/redux/slices/user';
+import { ACTION_USERS_DELETE } from '../create-request-form/ids.constant';
 
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = ['all', 'active', 'banned'];
+const STATUS_OPTIONS = ['all'];
 
 const ROLE_OPTIONS = [
   'all',
@@ -58,11 +62,11 @@ const ROLE_OPTIONS = [
 ];
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', align: 'left' },
-  { id: 'company', label: 'Company', align: 'left' },
-  { id: 'role', label: 'Role', align: 'left' },
-  { id: 'isVerified', label: 'Verified', align: 'center' },
-  { id: 'status', label: 'Status', align: 'left' },
+  { id: 'name', label: 'Nom & Prénoms', align: 'left' },
+  { id: 'company', label: 'Nombre de demandes', align: 'left' },
+  { id: 'role', label: 'Fonction', align: 'left' },
+  { id: 'isVerified', label: 'Administrateur', align: 'center' },
+  // { id: 'status', label: 'Status', align: 'left' },
   { id: '' },
 ];
 
@@ -105,6 +109,12 @@ export default function UserList() {
 
   const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('all');
 
+  const { user, users } = useSelector((state) => state.user);
+
+  const { enqueueSnackbar } = useSnackbar();
+
+  const dispatch = useDispatch();
+
   const handleFilterName = (filterName) => {
     setFilterName(filterName);
     setPage(0);
@@ -115,9 +125,7 @@ export default function UserList() {
   };
 
   const handleDeleteRow = (id) => {
-    const deleteRow = tableData.filter((row) => row.id !== id);
-    setSelected([]);
-    setTableData(deleteRow);
+    dispatch(deleteUser({ id: id }));
   };
 
   const handleDeleteRows = (selected) => {
@@ -145,6 +153,33 @@ export default function UserList() {
     (!dataFiltered.length && !!filterRole) ||
     (!dataFiltered.length && !!filterStatus);
 
+  /**
+   * Initiates a refresh action by dispatching a request to fetch all users.
+   *
+   * @return {void}
+   */
+  const handleRefresh = () => {
+    dispatch(fetchAllUsers());
+  };
+
+  // FETCH ALL DATA
+  useEffect(() => {
+    if ((users && !users.list) || (users && !users.list.length)) {
+      dispatch(fetchAllUsers());
+    }
+  }, [dispatch]);
+
+  // * ON_SUCCESS_DELETE
+  useEffect(() => {
+    if (users && !users.isLoading && users.actionType === ACTION_USERS_DELETE) {
+      if (users.success) {
+        enqueueSnackbar('Suppression effectuée', { variant: 'success' });
+        // dispatch(initUserRequest());
+        dispatch(fetchAllUsers());
+      }
+    }
+  }, [users, enqueueSnackbar, dispatch]);
+
   return (
     <Page title="User: List">
       <Container maxWidth={themeStretch ? false : 'lg'}>
@@ -156,11 +191,11 @@ export default function UserList() {
             { name: 'List' },
           ]}
           action={
-            <NextLink href={PATH_DASHBOARD.user.new} passHref>
-              <Button variant="contained" startIcon={<Iconify icon={'eva:plus-fill'} />}>
-                New User
+            <Button onClick={handleRefresh}>
+              <Button variant="contained">
+                <Iconify icon={'eva:refresh-fill'} />
               </Button>
-            </NextLink>
+            </Button>
           }
         />
 
@@ -180,13 +215,15 @@ export default function UserList() {
 
           <Divider />
 
-          <UserTableToolbar
-            filterName={filterName}
-            filterRole={filterRole}
-            onFilterName={handleFilterName}
-            onFilterRole={handleFilterRole}
-            optionsRole={ROLE_OPTIONS}
-          />
+          {false && (
+            <UserTableToolbar
+              filterName={filterName}
+              filterRole={filterRole}
+              onFilterName={handleFilterName}
+              onFilterRole={handleFilterRole}
+              optionsRole={ROLE_OPTIONS}
+            />
+          )}
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800, position: 'relative' }}>
@@ -228,16 +265,20 @@ export default function UserList() {
                 />
 
                 <TableBody>
-                  {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                    <UserTableRow
-                      key={row.id}
-                      row={row}
-                      selected={selected.includes(row.id)}
-                      onSelectRow={() => onSelectRow(row.id)}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
-                      onEditRow={() => handleEditRow(row.name)}
-                    />
-                  ))}
+                  {users &&
+                    users.list &&
+                    users.list
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((row) => (
+                        <UserTableRow
+                          key={row.id}
+                          row={row}
+                          selected={selected.includes(row.id)}
+                          onSelectRow={() => onSelectRow(row.id)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          onEditRow={() => handleEditRow(row.name)}
+                        />
+                      ))}
 
                   <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
 

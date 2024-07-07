@@ -3,7 +3,14 @@ import sum from 'lodash/sum';
 import uniqBy from 'lodash/uniqBy';
 import axios from '../../utils/axios';
 import { dispatch } from '../store';
-import { ACTION_DELETE, ACTION_FETCH_ALL, ACTION_UPDATE } from 'src/pages/dashboard/create-request-form/ids.constant';
+import {
+  ACTION_DELETE,
+  ACTION_FETCH_ALL,
+  ACTION_UPDATE,
+  ACTION_USERS_DELETE,
+  ACTION_USERS_FETCH_ALL,
+  ACTION_USERS_UPDATE,
+} from 'src/pages/dashboard/create-request-form/ids.constant';
 
 // ----------------------------------------------------------------------
 
@@ -17,6 +24,14 @@ const initialState = {
   user: {},
   expire: null,
   notifications: undefined,
+  users: {
+    isLoading: false,
+    error: null,
+    success: false,
+    successMessage: null,
+    list: null,
+    actionType: null,
+  },
   userRequest: {
     isLoading: false,
     error: null,
@@ -54,6 +69,19 @@ const slice = createSlice({
     },
 
     /**
+     * Sets the successMessage, isLoading, and actionType properties of the users state object to null, true, and the actionType from the payload respectively.
+     *
+     * @param {Object} state - The state object.
+     * @param {Object} action - The action object containing payload data.
+     * @return {void}
+     */
+    startUsersLoading(state, action) {
+      state.users.successMessage = null;
+      state.users.isLoading = true;
+      state.users.actionType = action?.payload?.actionType || null;
+    },
+
+    /**
      * Updates the state when an error occurs.
      *
      * @param {Object} state - The current state of the user slice.
@@ -82,6 +110,13 @@ const slice = createSlice({
       state.userRequest.error = action.payload?.error;
       state.userRequest.success = false;
       state.userRequest.successMessage = null;
+    },
+
+    hasErrorUsers(state, action) {
+      state.users.isLoading = false;
+      state.users.error = action.payload?.error;
+      state.users.success = false;
+      state.users.successMessage = null;
     },
 
     /**
@@ -119,6 +154,7 @@ const slice = createSlice({
       state.error = null;
       // Sauvegarder le token dans le cache
       localStorage.setItem('authToken', action.payload.data.token);
+      localStorage.setItem('loggedIsAdmin', action.payload.data.isAdmin);
     },
 
     /**
@@ -220,6 +256,50 @@ const slice = createSlice({
       // Ajouter 10 secondes d'expiration
       const currentTime = new Date().getTime();
       state.userRequest.actionTimeExpire = currentTime + 10000; // 10 secondes en millisecondes
+    },
+
+    /**
+     * Updates the state with the success of retrieving users.
+     *
+     * @param {Object} state - The current state of the user slice.
+     * @param {Object} action - The action object containing payload data.
+     */
+    getUsersSuccess(state, action) {
+      state.users.isLoading = false;
+      state.users.success = true;
+      state.users.successMessage = action.payload.message;
+      state.users.list = action.payload.data;
+      state.users.actionType = ACTION_USERS_FETCH_ALL;
+    },
+
+    /**
+     * Updates the state with the success of updating a single user.
+     *
+     * @param {Object} state - The current state of the users slice.
+     * @param {Object} action - The action object containing payload data.
+     * @return {void}
+     */
+    updateSingleUserSuccess(state, action) {
+      state.users.isLoading = false;
+      state.users.success = true;
+      state.users.successMessage = action.payload.message;
+      state.users.list = null;
+      state.users.actionType = ACTION_USERS_UPDATE;
+    },
+
+    /**
+     * Updates the state with the success of deleting a single user.
+     *
+     * @param {Object} state - The current state of the users slice.
+     * @param {Object} action - The action object containing payload data.
+     * @return {void}
+     */
+    deleteSingleUserSuccess(state, action) {
+      state.users.isLoading = false;
+      state.users.success = true;
+      state.users.successMessage = action.payload.message;
+      state.users.list = null;
+      state.users.actionType = ACTION_USERS_DELETE;
     },
   },
 });
@@ -377,3 +457,76 @@ export function deleteUserRequest(payload) {
     }
   };
 }
+
+/**
+ * Fetches all users from the server.
+ *
+ * @param {Object} payload - The payload containing additional parameters for the request.
+ * @return {Function} An asynchronous function that dispatches actions to start and complete the user loading process.
+ * If the request is successful, it dispatches an action to store the fetched users. If the request fails, it dispatches an action to handle the error.
+ */
+export function fetchAllUsers(payload) {
+  return async () => {
+    dispatch(slice.actions.startUsersLoading({ actionType: ACTION_USERS_FETCH_ALL }));
+    try {
+      const response = await axios.get('/user/list' + (payload || ''));
+      if (response && response.data) {
+        dispatch(slice.actions.getUsersSuccess(response.data));
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error) {
+      dispatch(slice.actions.hasErrorUsers(error));
+    }
+  };
+}
+
+/**
+ * Updates a user by sending a PUT request to '/user/update-profile'.
+ *
+ * @param {Object} payload - The payload containing the user data to be updated.
+ * @return {Function} An asynchronous function that dispatches actions to start and complete the user loading process.
+ * If the request is successful, it dispatches an action to update the single user. If the request fails, it dispatches an action to handle the error.
+ */
+export function updateUser(payload) {
+  return async () => {
+    dispatch(slice.actions.startUsersLoading({ actionType: ACTION_USERS_UPDATE }));
+    try {
+      const response = await axios.put('/user/update-profile', payload);
+      dispatch(slice.actions.updateSingleUserSuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasErrorUsers(error));
+    }
+  };
+}
+
+/**
+ * Deletes a user by sending a DELETE request to '/user/delete'.
+ *
+ * @param {Object} payload - The payload containing the user data to be deleted.
+ * @return {Promise<void>} A Promise that resolves when the user is successfully deleted,
+ * or rejects with an error if the deletion fails.
+ */
+export function deleteUser(payload) {
+  return async () => {
+    dispatch(slice.actions.startUsersLoading({ actionType: ACTION_USERS_DELETE }));
+    try {
+      const response = await axios.delete('/user/delete', { data: payload });
+      dispatch(slice.actions.deleteSingleUserSuccess(response.data));
+    } catch (error) {
+      dispatch(slice.actions.hasErrorUsers(error));
+    }
+  };
+}
+
+// export function loggedIsUser(payload) {
+//   return async () => {
+//     dispatch(slice.actions.startUsersLoading({ actionType: ACTION_USERS_DELETE }));
+//     try {
+//       const response = await axios.delete('/user/delete', { data: payload });
+//       dispatch(slice.actions.deleteSingleUserSuccess(response.data));
+//     } catch (error) {
+//       dispatch(slice.actions.hasErrorUsers(error));
+//     }
+//   };
+// }

@@ -120,7 +120,6 @@ export default function UserRequestList() {
   const { currentTab: filterStatus, onChangeTab: onChangeFilterStatus } = useTabs('all');
 
   const { user, userRequest } = useSelector((state) => state.user);
-
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
 

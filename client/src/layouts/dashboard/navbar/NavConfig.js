@@ -3,6 +3,7 @@ import { PATH_DASHBOARD } from '../../../routes/paths';
 // components
 import Label from '../../../components/Label';
 import SvgIconStyle from '../../../components/SvgIconStyle';
+import { useSelector } from 'react-redux';
 
 // ----------------------------------------------------------------------
 
@@ -24,6 +25,20 @@ const ICONS = {
   dashboard: getIcon('ic_dashboard'),
 };
 
+// const { user } = useSelector((state) => state.user);
+
+let isAdmin = false;
+// if (user) {
+//   isAdmin = user?.isAdmin;
+// }
+// if (typeof localStorage !== 'undefined') {
+//   isAdmin = localStorage.getItem('loggedIsAdmin') || false;
+// }
+
+// const isAdmin = false;
+
+let nav = [];
+
 const navConfig = [
   // GENERAL
   // ----------------------------------------------------------------------
@@ -41,7 +56,7 @@ const navConfig = [
         icon: ICONS.user,
         children: [
           { title: 'Creer une demande', path: PATH_DASHBOARD.general.booking },
-          { title: 'Toutes les Demandes', path: PATH_DASHBOARD.general.userRequest },
+          // { title: 'Toutes les Demandes', path: PATH_DASHBOARD.general.userRequest },
           { title: 'Mes demandes', path: PATH_DASHBOARD.general.userRequest },
           // { title: 'profile', path: PATH_DASHBOARD.user.profile },
           // { title: 'cards', path: PATH_DASHBOARD.user.cards },
@@ -58,21 +73,21 @@ const navConfig = [
   // MANAGEMENT
   // ----------------------------------------------------------------------
   {
-    subheader: 'Administration',
+    subheader: 'Parameters',
     items: [
       // USER
       {
-        title: 'utilisateurs',
-        path: PATH_DASHBOARD.user.root,
+        title: 'Mon compte',
+        path: PATH_DASHBOARD.user.account,
         icon: ICONS.user,
-        children: [
-          { title: 'liste des utilisateurs', path: PATH_DASHBOARD.user.list },
-          { title: 'Ajouter', path: PATH_DASHBOARD.user.new },
-          // { title: 'profile', path: PATH_DASHBOARD.user.profile },
-          // { title: 'cards', path: PATH_DASHBOARD.user.cards },
-          // { title: 'edit', path: PATH_DASHBOARD.user.demoEdit },
-          // { title: 'account', path: PATH_DASHBOARD.user.account },
-        ],
+        // children: [
+        //   // { title: 'liste des utilisateurs', path: PATH_DASHBOARD.user.list },
+        //   // { title: 'Ajouter', path: PATH_DASHBOARD.user.new },
+        //   // { title: 'profile', path: PATH_DASHBOARD.user.profile },
+        //   // { title: 'cards', path: PATH_DASHBOARD.user.cards },
+        //   // { title: 'edit', path: PATH_DASHBOARD.user.demoEdit },
+        //   { title: 'account', path: PATH_DASHBOARD.user.account },
+        // ],
       },
 
       // E-COMMERCE
@@ -139,4 +154,44 @@ const navConfig = [
   // },
 ];
 
-export default navConfig;
+const navAdminConfig = [
+  // GENERAL
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'Demandes',
+    items: [
+      {
+        title: 'Demandes',
+        path: PATH_DASHBOARD.general.booking,
+        icon: ICONS.booking,
+        icon: ICONS.user,
+        children: [
+          { title: 'Creer une demande', path: PATH_DASHBOARD.general.booking },
+          { title: 'Toutes les Demandes', path: PATH_DASHBOARD.general.userRequest },
+        ],
+      },
+    ],
+  },
+
+  // MANAGEMENT
+  // ----------------------------------------------------------------------
+  {
+    subheader: 'Administration',
+    items: [
+      // USER
+      {
+        title: 'utilisateurs',
+        path: PATH_DASHBOARD.user.root,
+        icon: ICONS.user,
+        children: [
+          { title: 'liste des utilisateurs', path: PATH_DASHBOARD.user.list },
+          // { title: 'Ajouter', path: PATH_DASHBOARD.user.new },
+        ],
+      },
+    ],
+  },
+];
+
+nav = isAdmin ? navAdminConfig : navConfig;
+
+export default nav;

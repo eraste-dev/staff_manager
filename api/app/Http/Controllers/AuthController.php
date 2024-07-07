@@ -6,6 +6,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\NotificationService;
 use App\Services\ResponseService;
+use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -25,7 +26,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('matemp', 'password');
-        if (! $token = JWTAuth::attempt($credentials)) {
+        if (!$token = JWTAuth::attempt($credentials)) {
             return ResponseService::error(__('auth.unauthorized'), 401);
         }
 
@@ -79,7 +80,7 @@ class AuthController extends Controller
                 'Merci de faire confiance à SOCIBA, vous pouvez publier votre première annonce',
                 [
                     'title' => 'Nouvel utilisateur',
-                    'message' => 'Nouvel utilisateur enregisté : '.$user->nomemp.' '.$user->premp,
+                    'message' => 'Nouvel utilisateur enregisté : ' . $user->nomemp . ' ' . $user->premp,
                 ]
             );
         } catch (\Throwable $th) {
@@ -151,6 +152,33 @@ class AuthController extends Controller
         }
     }
 
+    public function delete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer|exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return ResponseService::error(
+                "Utilisateur introuvale : " . implode(', ', $validator->errors()->all()),
+                404,
+                $validator->errors()
+            );
+        }
+
+        // Enregistrer les données dans la base de données
+        $validatedData = $validator->validated();
+
+        if (isset($validatedData['id'])) {
+            $demande = User::find($validatedData['id']);
+            $demande->status = Utils::STATE_DELETED();
+            // $demande->updated_by = auth()->user()->id;
+            $demande->update($validatedData);
+        }
+
+        return ResponseService::success([], "Suppression effectuée avec succès");
+    }
+
     /**
      * Envoie un lien de réinitialisation de mot de passe à l'utilisateur.
      */
@@ -205,7 +233,7 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        if (! Hash::check($request->current_password, $user->password)) {
+        if (!Hash::check($request->current_password, $user->password)) {
             throw ValidationException::withMessages([
                 'current_password' => ['Current password is incorrect'],
             ]);
