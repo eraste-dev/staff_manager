@@ -82,11 +82,13 @@ const StatusDropdown = ({ current, handleClose }) => {
       <Box display={'flex'}>
         <InputLabel id="status-label">Statut</InputLabel>
         <Select fullWidth labelId="status-label" id="status-dropdown" value={status} onChange={handleStatusChange}>
-          {STATE_ARRAY.map((state) => (
-            <MenuItem key={state} value={state}>
-              {getStatus(state)}
-            </MenuItem>
-          ))}
+          {user &&
+            user?.isAdmin &&
+            STATE_ARRAY.map((state) => (
+              <MenuItem key={state} value={state}>
+                {getStatus(state)}
+              </MenuItem>
+            ))}
         </Select>
 
         <Button color="error" onClick={handleClose}>

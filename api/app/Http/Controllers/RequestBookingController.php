@@ -6,6 +6,7 @@ use App\Http\Resources\RequestResource;
 use Illuminate\Http\Request;
 use App\Models\Property;
 use App\Models\RequestModel;
+use App\Services\NotificationService;
 use App\Services\ProudctPaginationService;
 use App\Services\ResponseService;
 use App\Utils\Utils;
@@ -46,6 +47,9 @@ class RequestBookingController extends Controller
             'location' => 'nullable|string',
             'desciption' => 'nullable|string',
             'object' => 'nullable|string',
+            'startDate' => 'nullable|string',
+            'endDate' => 'nullable|string',
+            'motif' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -74,6 +78,21 @@ class RequestBookingController extends Controller
             $demande->status = 'PENDING';
             $demande->updated_by = auth()->user()->id;
             $demande->save();
+
+            // send notification
+            try {
+                NotificationService::notify(
+                    auth()->user(),
+                    'Vous avez envoyé une demande',
+                    'Merci, nous traitons votre demande',
+                    [
+                        'title' => 'Nouvelle demande',
+                        'message' => 'Nouvelle demande soumise : ', //  . $user->nomemp . ' ' . $user->premp
+                    ]
+                );
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
         }
 
         return ResponseService::success($demande->refresh(), "Store successfully");

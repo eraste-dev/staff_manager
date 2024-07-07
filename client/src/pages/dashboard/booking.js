@@ -34,7 +34,18 @@ import {
 } from '../../assets';
 import { useState } from 'react';
 import RequestFormBase from './create-request-form/RequestFormBase';
-import { MISSION_REQUEST_KEY } from './create-request-form/ids.constant';
+import {
+  ABSENCE_REQUEST_KEY,
+  CONGESS_REQUEST_KEY,
+  MATERIALS_REQUEST,
+  MISSION_REQUEST_KEY,
+  REQUEST_FOR_CREDIT_ON_XEROX_MULTIFUNCTION_UNITS,
+  REQUEST_FOR_EXPRESSION_OF_NEEDS,
+  REQUEST_FOR_ON_CALL_TIME,
+  REQUEST_FOR_RETURN_TO_SERVICE,
+  REQUEST_FOR_TELEPHONE_CREDIT_EXTENSION,
+  VEHICLE_EXIT_REQUEST,
+} from './create-request-form/ids.constant';
 import { useSelector } from 'react-redux';
 
 // ----------------------------------------------------------------------
@@ -66,7 +77,7 @@ export default function GeneralBooking() {
 
   const BookingWidgetSummaryArray = [
     {
-      id: 'absence-request',
+      id: ABSENCE_REQUEST_KEY,
       title: "Demande d'absences",
       total: "Demande d'absence",
       icon: <BookingIllustration />,
@@ -78,43 +89,49 @@ export default function GeneralBooking() {
       icon: <CheckOutIllustration />,
     },
     {
+      id: CONGESS_REQUEST_KEY,
       title: 'Demande de départ en congés',
       total: 124000,
       icon: <CheckInIllustration />,
     },
-    //
-    //
     {
+      id: REQUEST_FOR_EXPRESSION_OF_NEEDS,
       title: "Demande d'expression de besoins",
       total: 714000,
       icon: <SeoIllustration />,
     },
     {
+      id: REQUEST_FOR_TELEPHONE_CREDIT_EXTENSION,
       title: 'Demande de rallonge de crédit téléphonique',
       total: 311000,
       icon: <SentIcon />,
     },
     {
+      id: REQUEST_FOR_CREDIT_ON_XEROX_MULTIFUNCTION_UNITS,
       title: 'Demande de crédit sur les unités multifonctions XEROX',
       total: 124000,
       icon: <PlanPremiumIcon />,
     },
     {
+      id: MATERIALS_REQUEST,
       title: 'Demande matériels',
       total: 714000,
       icon: <OrderCompleteIllustration />,
     },
     {
+      id: REQUEST_FOR_RETURN_TO_SERVICE,
       title: 'Demande de reprise de service',
       total: 311000,
       icon: <MotivationIllustration />,
     },
     {
+      id: VEHICLE_EXIT_REQUEST,
       title: 'Demande de sortie de véhicules',
       total: 124000,
       icon: <MaintenanceIllustration />,
     },
     {
+      id: REQUEST_FOR_ON_CALL_TIME,
       title: "Demande d'heures d'astreintes",
       total: 124000,
       icon: <DocIllustration />,

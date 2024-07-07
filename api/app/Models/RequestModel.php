@@ -20,11 +20,16 @@ class RequestModel extends Model
         // 'matemp',
         // 'foncemp',
         // 'email',
+
         'mission',
         'location',
         'desciption',
         'object',
         'user_id',
+
+        'startDate',
+        'endDate',
+        'motif',
     ];
 
     /**

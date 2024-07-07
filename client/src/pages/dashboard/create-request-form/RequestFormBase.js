@@ -14,7 +14,7 @@ import {
 import AbsenceRequests from './AbsenceRequests';
 import PropTypes from 'prop-types';
 import { Stack } from 'immutable';
-import { FormProvider, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
 import useIsMountedRef from 'src/hooks/useIsMountedRef';
@@ -22,8 +22,9 @@ import { useSnackbar } from 'notistack';
 import { RHFTextField } from 'src/components/hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { ACTION_UPDATE, MISSION_REQUEST_KEY } from './ids.constant';
+import { ABSENCE_REQUEST_KEY, ACTION_UPDATE, MISSION_REQUEST_KEY } from './ids.constant';
 import { getUserRequests, initUserRequest, saveUserRequest } from 'src/redux/slices/user';
+import { DatePicker } from '@mui/lab';
 
 function RequestFormBase({ open, handleClose, requestData }) {
   const isMountedRef = useIsMountedRef();
@@ -45,6 +46,10 @@ function RequestFormBase({ open, handleClose, requestData }) {
     location: Yup.string(),
     desciption: Yup.string(),
     object: Yup.string(),
+
+    startDate: Yup.string(),
+    endDate: Yup.string(),
+    motif: Yup.string(),
   });
 
   const defaultValues = {
@@ -57,6 +62,10 @@ function RequestFormBase({ open, handleClose, requestData }) {
     location: userRequest && userRequest.data ? userRequest.data.location : '',
     desciption: userRequest && userRequest.data ? userRequest.data.desciption : '',
     object: userRequest && userRequest.data ? userRequest.data.object : '',
+
+    startDate: userRequest && userRequest.data ? userRequest.data.startDate : '',
+    endDate: userRequest && userRequest.data ? userRequest.data.endDate : '',
+    motif: userRequest && userRequest.data ? userRequest.data.motif : '',
   };
 
   const methods = useForm({ resolver: yupResolver(FormSchema), defaultValues });
@@ -64,6 +73,8 @@ function RequestFormBase({ open, handleClose, requestData }) {
   const {
     reset,
     setError,
+    control,
+    setValue,
     handleSubmit,
     formState: { errors, isSubmitting, isSubmitted, isValid },
   } = methods;
@@ -110,21 +121,34 @@ function RequestFormBase({ open, handleClose, requestData }) {
     };
   };
 
+  /**
+   * Checks if the function can be shown based on the requestData.
+   *
+   * @return {boolean} Returns true if the requestData is not MISSION_REQUEST_KEY or ABSENCE_REQUEST_KEY, otherwise returns false.
+   */
   const canShowFunction = () => {
-    return requestData && requestData?.id != MISSION_REQUEST_KEY;
+    if (!requestData) {
+      return false;
+    }
+
+    return requestData?.id !== MISSION_REQUEST_KEY && requestData?.id !== ABSENCE_REQUEST_KEY;
   };
 
   const canShowMatricule = () => {
-    return requestData && requestData?.id != MISSION_REQUEST_KEY;
+    if (!requestData) {
+      return false;
+    }
+
+    return requestData?.id !== MISSION_REQUEST_KEY && requestData?.id !== ABSENCE_REQUEST_KEY;
   };
 
   const canShowEmail = () => {
     return requestData && requestData?.id != MISSION_REQUEST_KEY;
   };
 
-  const isMissionRequest = () => {
-    return requestData && requestData?.id == MISSION_REQUEST_KEY;
-  };
+  const isMissionRequest = () => requestData && requestData?.id == MISSION_REQUEST_KEY;
+
+  const isAbsenceRequest = () => requestData && requestData?.id == ABSENCE_REQUEST_KEY;
 
   // On success of request
   useEffect(() => {
@@ -190,9 +214,55 @@ function RequestFormBase({ open, handleClose, requestData }) {
                 </Grid>
               )}
 
+              {isAbsenceRequest() && (
+                <>
+                  <Grid item xs={12} md={6} lg={6}>
+                    <Controller
+                      name="startDate"
+                      control={control}
+                      render={({ field, fieldState: { error } }) => (
+                        <DatePicker
+                          value={new Date(field.value)}
+                          label="Date de départ"
+                          inputFormat="dd/MM/yyyy"
+                          renderInput={(params) => (
+                            <TextField fullWidth {...params} error={!!error} helperText={error?.message} />
+                          )}
+                          onChange={(e) => setValue('startDate', new Date(e).getTime())}
+                        />
+                      )}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={6} lg={6}>
+                    <Controller
+                      name="endDate"
+                      control={control}
+                      render={({ field, fieldState: { error } }) => (
+                        <DatePicker
+                          value={new Date(field.value)}
+                          label="Date de retour"
+                          inputFormat="dd/MM/yyyy"
+                          renderInput={(params) => (
+                            <TextField fullWidth {...params} error={!!error} helperText={error?.message} />
+                          )}
+                          onChange={(e) => setValue('endDate', new Date(e).getTime())}
+                        />
+                      )}
+                    />
+                  </Grid>
+                </>
+              )}
+
               {canShowEmail() && (
-                <Grid item xs={12} md={6} lg={6}>
+                <Grid item xs={12} md={12} lg={12}>
                   <RHFTextField name="email" label="Email" />
+                </Grid>
+              )}
+
+              {isAbsenceRequest() && (
+                <Grid item xs={12} md={12} lg={12}>
+                  <RHFTextField name="motif" label="Motif" />
                 </Grid>
               )}
 

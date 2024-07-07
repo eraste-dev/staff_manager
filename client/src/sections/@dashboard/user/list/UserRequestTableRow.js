@@ -114,9 +114,14 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
       </TableCell>
 
       <TableCell align="center" sx={{ textAlign: 'justify' }}>
-        {location && <Box>Lieu de mission : {location}</Box>}
-        <Divider />
-        {desciption.length > 300 ? desciption.slice(0, 300) + '...' : desciption}
+        {location && (
+          <>
+            <Box>Lieu de mission : {location}</Box>
+            <Divider />
+          </>
+        )}
+
+        {desciption && desciption.length > 300 ? desciption.slice(0, 300) + '...' : desciption}
       </TableCell>
 
       <TableCell align="left">
@@ -133,15 +138,28 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
                   color={getStatusColor(status)}
                   sx={{ textTransform: 'capitalize' }}
                 >
-                  <span onClick={() => setEditState(true)}>{getStatus(status)}</span>
+                  <span
+                    onClick={() => {
+                      if (user && user.isAdmin) {
+                        setEditState(true);
+                      }
+                    }}
+                  >
+                    {getStatus(status)}
+                  </span>
                 </Label>
 
-                <Button onClick={() => setEditState(true)}>
-                  <Iconify icon={'eva:edit-fill'} />
-                </Button>
+                {user?.isAdmin ? 'true' : 'false'}
+
+                {user && user.isAdmin && (
+                  <Button onClick={() => setEditState(true)}>
+                    <Iconify icon={'eva:edit-fill'} />
+                  </Button>
+                )}
               </>
             )}
           </Grid>
+
           <Grid item lg={12} sx={{ mb: 3 }}>
             {editState && <StatusDropdown handleClose={() => setEditState(false)} current={row} />}
           </Grid>

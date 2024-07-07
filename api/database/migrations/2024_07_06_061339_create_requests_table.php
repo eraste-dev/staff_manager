@@ -25,6 +25,11 @@ return new class extends Migration
             $table->string('object')->nullable();
             $table->integer('user_id')->nullable();
             $table->integer('updated_by')->nullable();
+
+            $table->string('startDate')->nullable();
+            $table->string('endDate')->nullable();
+            $table->string('motif')->nullable();
+
             $table->enum('status', ['ACTIVE', 'INACTIVE', 'DELETED', 'REJECTED', 'PENDING', 'BLOCKED'])->default('ACTIVE');
             $table->enum('request_type', ['MISSION_REQUEST',])->default('MISSION_REQUEST');
 
