@@ -222,6 +222,19 @@ const slice = createSlice({
     },
 
     /**
+     * Marks all notifications as read by clearing the notifications array and
+     * resetting the loading and error state.
+     *
+     * @param {Object} state - The current state of the user slice.
+     * @return {void}
+     */
+    markAllAsReadSuccess(state) {
+      state.notifications = [];
+      state.isLoadingNotifs = false;
+      state.errorNotifs = null;
+    },
+
+    /**
      * Updates the state with the success of getting user requests.
      *
      * @param {Object} state - The current state of the user slice.
@@ -389,10 +402,31 @@ export function getNotifications(payload) {
   return async () => {
     dispatch(slice.actions.startLoadingNotifs());
     try {
+      let params = '';
+      if (payload && payload.user_id) {
+        params = `?user_id=${payload.user_id}`;
+      }
       const response = await axios.get('/user/notifications', payload);
       dispatch(slice.actions.getNotificationSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+/**
+ * Mark all notifications as read.
+ *
+ * @return {Promise<void>} A Promise that resolves after marking all notifications as read.
+ */
+export function markAllNotificationAsRead() {
+  return async () => {
+    dispatch(slice.actions.startLoadingNotifs());
+    try {
+      const response = await axios.post('/user/notifications/mark-all-as-read');
+      dispatch(slice.actions.markAllAsReadSuccess(response.data));
+    } catch (error) {
+      // dispatch(slice.actions.hasError(error));
     }
   };
 }

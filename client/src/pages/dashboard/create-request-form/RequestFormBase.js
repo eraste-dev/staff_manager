@@ -22,9 +22,21 @@ import { useSnackbar } from 'notistack';
 import { RHFTextField } from 'src/components/hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { ABSENCE_REQUEST_KEY, ACTION_UPDATE, MISSION_REQUEST_KEY } from './ids.constant';
+import {
+  ABSENCE_REQUEST_KEY,
+  ACTION_UPDATE,
+  CONGESS_REQUEST_KEY,
+  MATERIALS_REQUEST,
+  MISSION_REQUEST_KEY,
+  REQUEST_FOR_CREDIT_ON_XEROX_MULTIFUNCTION_UNITS,
+  REQUEST_FOR_EXPRESSION_OF_NEEDS,
+  REQUEST_FOR_ON_CALL_TIME,
+  REQUEST_FOR_RETURN_TO_SERVICE,
+  REQUEST_FOR_TELEPHONE_CREDIT_EXTENSION,
+  VEHICLE_EXIT_REQUEST,
+} from './ids.constant';
 import { getUserRequests, initUserRequest, saveUserRequest } from 'src/redux/slices/user';
-import { DatePicker } from '@mui/lab';
+import { DatePicker, DateTimePicker } from '@mui/lab';
 
 function RequestFormBase({ open, handleClose, requestData }) {
   const isMountedRef = useIsMountedRef();
@@ -92,7 +104,6 @@ function RequestFormBase({ open, handleClose, requestData }) {
       //   handleClose();
     } catch (error) {
       console.error(error);
-      reset();
       if (isMountedRef.current) {
         setError('afterSubmit', { ...error, message: error.message });
       }
@@ -131,7 +142,12 @@ function RequestFormBase({ open, handleClose, requestData }) {
       return false;
     }
 
-    return requestData?.id !== MISSION_REQUEST_KEY && requestData?.id !== ABSENCE_REQUEST_KEY;
+    return (
+      requestData?.id !== MISSION_REQUEST_KEY &&
+      requestData?.id !== ABSENCE_REQUEST_KEY &&
+      requestData?.id !== CONGESS_REQUEST_KEY &&
+      requestData?.id !== REQUEST_FOR_EXPRESSION_OF_NEEDS
+    );
   };
 
   const canShowMatricule = () => {
@@ -139,23 +155,82 @@ function RequestFormBase({ open, handleClose, requestData }) {
       return false;
     }
 
-    return requestData?.id !== MISSION_REQUEST_KEY && requestData?.id !== ABSENCE_REQUEST_KEY;
+    return (
+      requestData?.id !== MISSION_REQUEST_KEY &&
+      requestData?.id !== ABSENCE_REQUEST_KEY &&
+      requestData?.id !== CONGESS_REQUEST_KEY &&
+      requestData?.id !== REQUEST_FOR_EXPRESSION_OF_NEEDS
+    );
   };
 
   const canShowEmail = () => {
     return requestData && requestData?.id != MISSION_REQUEST_KEY;
   };
 
+  const canShowDate = () => {
+    if (!requestData) {
+      return false;
+    }
+
+    return isAbsenceRequest() || isCongeRequest() || isRequestReturnToService();
+  };
+
+  const canShowDateTime = () => {
+    if (!requestData) {
+      return false;
+    }
+
+    return isRequestVehicleExit() || isRequestOnCallTime();
+  };
+
+  const canShowMotif = () => {
+    if (!requestData) {
+      return false;
+    }
+
+    return (
+      // isMissionRequest() ||
+      isCongeRequest() ||
+      isAbsenceRequest() ||
+      isRequestCreditExtension() ||
+      isRequestTelephoneCreditExtension() ||
+      isRequestReturnToService() ||
+      isRequestVehicleExit() ||
+      isRequestOnCallTime() ||
+      isRequestExpressionNeeds() ||
+      isMaterialRequest()
+    );
+  };
+
   const isMissionRequest = () => requestData && requestData?.id == MISSION_REQUEST_KEY;
 
   const isAbsenceRequest = () => requestData && requestData?.id == ABSENCE_REQUEST_KEY;
 
-  // On success of request
+  const isCongeRequest = () => requestData && requestData?.id == CONGESS_REQUEST_KEY;
+
+  const isRequestExpressionNeeds = () => requestData && requestData?.id === REQUEST_FOR_EXPRESSION_OF_NEEDS;
+
+  const isRequestCreditExtension = () =>
+    requestData && requestData?.id === REQUEST_FOR_CREDIT_ON_XEROX_MULTIFUNCTION_UNITS;
+
+  const isRequestTelephoneCreditExtension = () =>
+    requestData && requestData?.id === REQUEST_FOR_TELEPHONE_CREDIT_EXTENSION;
+
+  const isRequestReturnToService = () => requestData && requestData?.id === REQUEST_FOR_RETURN_TO_SERVICE;
+
+  const isRequestVehicleExit = () => requestData && requestData?.id === VEHICLE_EXIT_REQUEST;
+
+  const isRequestOnCallTime = () => requestData && requestData?.id === REQUEST_FOR_ON_CALL_TIME;
+
+  const isMaterialRequest = () => requestData && requestData?.id === MATERIALS_REQUEST;
+
+  // * On success of request
   useEffect(() => {
     if (userRequest && !userRequest.isLoading && userRequest.actionType === ACTION_UPDATE && isSubmitted) {
       if (userRequest.success) {
         enqueueSnackbar('Demande envoyée avec succès', { variant: 'success' });
         dispatch(initUserRequest());
+        reset();
         if (requestData && requestData.data?.id) {
           // TODO : use useEffect to single fetchAll
           const payload = user && !user?.isAdmin && user?.id ? `?user_id=${user?.id}` : '';
@@ -166,7 +241,7 @@ function RequestFormBase({ open, handleClose, requestData }) {
     }
   }, [userRequest, enqueueSnackbar, dispatch, handleClose]);
 
-  // on error in request
+  // ! on error in request
   useEffect(() => {
     if (userRequest && !userRequest.isLoading && userRequest.actionType === ACTION_UPDATE && isSubmitted) {
       if (userRequest.error) {
@@ -195,26 +270,26 @@ function RequestFormBase({ open, handleClose, requestData }) {
 
             <Grid container spacing={3} mt={3}>
               <Grid item xs={12} md={6} lg={6}>
-                <RHFTextField name="premp" label="Prenoms" />
+                <RHFTextField name="premp" label="Prenoms" disabled />
               </Grid>
 
               <Grid item xs={12} md={6} lg={6}>
-                <RHFTextField name="nomemp" label="Nom" />
+                <RHFTextField name="nomemp" label="Nom" disabled />
               </Grid>
 
               {canShowFunction() && (
                 <Grid item xs={12} md={6} lg={6}>
-                  <RHFTextField name="foncemp" label="Fonction" />
+                  <RHFTextField name="foncemp" label="Fonction" disabled />
                 </Grid>
               )}
 
               {canShowMatricule() && (
                 <Grid item xs={12} md={6} lg={6}>
-                  <RHFTextField name="matemp" label="Matricule" />
+                  <RHFTextField name="matemp" label="Matricule" disabled />
                 </Grid>
               )}
 
-              {isAbsenceRequest() && (
+              {canShowDate() && (
                 <>
                   <Grid item xs={12} md={6} lg={6}>
                     <Controller
@@ -254,13 +329,53 @@ function RequestFormBase({ open, handleClose, requestData }) {
                 </>
               )}
 
+              {canShowDateTime() && (
+                <>
+                  <Grid item xs={12} md={6} lg={6}>
+                    <Controller
+                      name="startDate"
+                      control={control}
+                      render={({ field, fieldState: { error } }) => (
+                        <DateTimePicker
+                          value={new Date(field.value)}
+                          label="Date et heure de départ"
+                          inputFormat="dd/MM/yyyy H:mm:ss "
+                          renderInput={(params) => (
+                            <TextField fullWidth {...params} error={!!error} helperText={error?.message} />
+                          )}
+                          onChange={(e) => setValue('startDate', e)}
+                        />
+                      )}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} md={6} lg={6}>
+                    <Controller
+                      name="endDate"
+                      control={control}
+                      render={({ field, fieldState: { error } }) => (
+                        <DateTimePicker
+                          value={new Date(field.value)}
+                          label="Date et heure de arrivée"
+                          inputFormat="dd/MM/yyyy H:mm:ss "
+                          renderInput={(params) => (
+                            <TextField fullWidth {...params} error={!!error} helperText={error?.message} />
+                          )}
+                          onChange={(e) => setValue('endDate', e)}
+                        />
+                      )}
+                    />
+                  </Grid>
+                </>
+              )}
+
               {canShowEmail() && (
                 <Grid item xs={12} md={12} lg={12}>
-                  <RHFTextField name="email" label="Email" />
+                  <RHFTextField name="email" label="Email" disabled />
                 </Grid>
               )}
 
-              {isAbsenceRequest() && (
+              {canShowMotif() && (
                 <Grid item xs={12} md={12} lg={12}>
                   <RHFTextField name="motif" label="Motif" />
                 </Grid>

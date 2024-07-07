@@ -19,7 +19,8 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
         if ($user) {
-            return ResponseService::success($user->notifications);
+            $notifications = $user->notifications;
+            return ResponseService::success($notifications);
         }
 
         return ResponseService::error('user not found', Response::HTTP_NOT_FOUND);

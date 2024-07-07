@@ -18,13 +18,6 @@ class RequestResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            // 'href' => 'request/' . $this->id,
-            // 'nomemp' => $this->nomemp,
-            // 'premp' => $this->premp,
-            // 'matemp' => $this->matemp,
-            // 'foncemp' => $this->foncemp,
-            // 'email' => $this->email,
-
             'mission' => $this->mission,
             'location' => $this->location,
             'desciption' => $this->desciption,
@@ -34,6 +27,7 @@ class RequestResource extends JsonResource
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
             'motif' => $this->motif,
+            'reject_reason' => $this->reject_reason,
             'user' => $this->getUseResource(),
             'updated_by' => $this->getUpdatedBy(),
             'created_at' => Carbon::parse($this->created_at)->format('d/m/Y H:i'),
@@ -41,3 +35,12 @@ class RequestResource extends JsonResource
         ];
     }
 }
+
+
+
+// 'href' => 'request/' . $this->id,
+// 'nomemp' => $this->nomemp,
+// 'premp' => $this->premp,
+// 'matemp' => $this->matemp,
+// 'foncemp' => $this->foncemp,
+// 'email' => $this->email,

@@ -30,6 +30,9 @@ class RequestModel extends Model
         'startDate',
         'endDate',
         'motif',
+
+        'reject_reason',
+        "request_type",
     ];
 
     /**

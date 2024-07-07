@@ -184,11 +184,11 @@ export default function UserList() {
     <Page title="User: List">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading="User List"
+          heading="Liste des utilisateurs"
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'User', href: PATH_DASHBOARD.user.root },
-            { name: 'List' },
+            { name: 'Tableau de bord' }, // href: PATH_DASHBOARD.root
+            // { name: 'User', href: PATH_DASHBOARD.user.root },
+            { name: 'Liste' },
           ]}
           action={
             <Button onClick={handleRefresh}>

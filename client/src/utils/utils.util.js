@@ -1,3 +1,14 @@
+import {
+  CONGESS_REQUEST_KEY,
+  MATERIALS_REQUEST,
+  MISSION_REQUEST_KEY,
+  REQUEST_FOR_CREDIT_ON_XEROX_MULTIFUNCTION_UNITS,
+  REQUEST_FOR_EXPRESSION_OF_NEEDS,
+  REQUEST_FOR_RETURN_TO_SERVICE,
+  REQUEST_FOR_TELEPHONE_CREDIT_EXTENSION,
+  VEHICLE_EXIT_REQUEST,
+} from 'src/pages/dashboard/create-request-form/ids.constant';
+
 /**
  * Checks if a given date is expired by comparing it to the current date.
  *
@@ -54,5 +65,38 @@ export function getStatusColor(status) {
       return 'error';
     default:
       return 'error';
+  }
+}
+
+export function getUserRequestName(key) {
+  if (!key) return '';
+
+  switch (key) {
+    case MISSION_REQUEST_KEY:
+      return "Demande d'autorisations de missions";
+
+    case CONGESS_REQUEST_KEY:
+      return 'Demande de départ en congés';
+
+    case REQUEST_FOR_EXPRESSION_OF_NEEDS:
+      return "Demande d'expression de besoins";
+
+    case REQUEST_FOR_TELEPHONE_CREDIT_EXTENSION:
+      return 'Demande de rallonge de créditéléphonique';
+
+    case REQUEST_FOR_CREDIT_ON_XEROX_MULTIFUNCTION_UNITS:
+      return "Demande de financement d'unite de fonctionnement Xerox";
+
+    case MATERIALS_REQUEST:
+      return 'Demande de matériel';
+
+    case REQUEST_FOR_RETURN_TO_SERVICE:
+      return 'Demande de reprise de service';
+
+    case VEHICLE_EXIT_REQUEST:
+      return 'Demande de sortie de véhicules';
+
+    default:
+      return "Demande d'heures d'astreintes";
   }
 }

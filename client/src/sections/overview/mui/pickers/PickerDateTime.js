@@ -8,10 +8,8 @@ import { Block } from '../../Block';
 // ----------------------------------------------------------------------
 
 export default function PickerDateTime() {
-  const [value, setValue] = useState<Date | null>(new Date());
-  const [valueResponsive, setValueResponsive] = useState<Date | null>(
-    new Date('2018-01-01T00:00:00.000Z')
-  );
+  const [value, setValue] = (useState < Date) | (null > new Date());
+  const [valueResponsive, setValueResponsive] = (useState < Date) | (null > new Date('2018-01-01T00:00:00.000Z'));
 
   return (
     <Stack spacing={3} direction={{ xs: 'column', md: 'row' }}>

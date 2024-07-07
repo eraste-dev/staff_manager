@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getUserRequests, initUserRequest, saveUserRequest } from 'src/redux/slices/user';
 import { useSnackbar } from 'notistack';
 import { ACTION_UPDATE } from 'src/pages/dashboard/create-request-form/ids.constant';
+import ConfirmRejectModal from 'src/components/dialog/ConfirmRejectModal';
 
 // export const STATE_ARRAY = ['ACTIVE', 'INACTIVE', 'DELETED', 'REJECTED', 'PENDING', 'BLOCKED'];
 export const STATE_ARRAY = ['ACTIVE', 'REJECTED', 'DELETED', 'PENDING'];
@@ -14,9 +15,33 @@ export const STATE_ARRAY = ['ACTIVE', 'REJECTED', 'DELETED', 'PENDING'];
 const StatusDropdown = ({ current, handleClose }) => {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  const [status, setStatus] = useState(current.status || 'PENDING');
 
+  const [openDelete, setOpenDelete] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+  const [status, setStatus] = useState(current.status || 'PENDING');
   const { user, userRequest } = useSelector((state) => state.user);
+
+  /**
+   * Opens the delete modal and closes the menu.
+   *
+   * @return {void}
+   */
+  const handleOpenDelete = () => {
+    setOpenDelete(true);
+  };
+
+  const handleCloseDelete = () => {
+    setOpenDelete(false);
+    // handleCloseMenu();
+  };
+
+  const onChangeReject = (event) => {
+    if (event.target.value) {
+      setRejectReason(event.target.value);
+    } else {
+      console.log(event);
+    }
+  };
 
   /**
    * Updates the user request status asynchronously.
@@ -24,12 +49,12 @@ const StatusDropdown = ({ current, handleClose }) => {
    * @param {string} state - The new status state to update.
    * @return {Promise<void>} A promise that resolves after updating the user request status.
    */
-  const updateUserRequest = async (state) => {
+  const updateUserRequest = async (state, rejectReason) => {
     const userRequest = current;
     try {
       if (userRequest && userRequest.id) {
         // userRequest.status = state;
-        dispatch(saveUserRequest({ ...userRequest, status: state }));
+        dispatch(saveUserRequest({ ...userRequest, status: state, reject_reason: rejectReason }));
       } else {
         console.error('userRequest is null');
       }
@@ -47,8 +72,12 @@ const StatusDropdown = ({ current, handleClose }) => {
   const handleStatusChange = (event) => {
     if (event && event.target && event.target.value) {
       const newStatus = event.target.value;
-      setStatus(newStatus);
-      updateUserRequest(newStatus).catch((error) => console.error(error));
+      if (newStatus === 'REJECTED') {
+        handleOpenDelete();
+      } else {
+        setStatus(newStatus);
+        updateUserRequest(newStatus).catch((error) => console.error(error));
+      }
       //   handleClose();
     } else {
       console.error('Invalid event or target value');
@@ -94,6 +123,22 @@ const StatusDropdown = ({ current, handleClose }) => {
         <Button color="error" onClick={handleClose}>
           <Iconify icon="eva:close-fill" />
         </Button>
+
+        {/* ConfirmRejectModal */}
+        <ConfirmRejectModal
+          title="Confirmation de rejet de demande"
+          message="Êtes-vous sûr de vouloir rejeter cette demande ?"
+          confirmText="Rejeter"
+          cancelText="Annuler"
+          handleClose={handleCloseDelete}
+          open={openDelete}
+          onChangeReject={onChangeReject}
+          rejectReason={rejectReason}
+          handleDelete={() => {
+            updateUserRequest('REJECTED', rejectReason).catch((error) => console.error(error));
+            handleCloseDelete();
+          }}
+        />
       </Box>
     </FormControl>
   );

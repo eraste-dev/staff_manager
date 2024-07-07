@@ -27,38 +27,50 @@ const NAV_ADMIN_CONFIG = [
   // GENERAL
   // ----------------------------------------------------------------------
   {
-    subheader: 'Demandes',
+    subheader: '',
     items: [
       {
         title: 'Demandes',
         path: PATH_DASHBOARD.general.booking,
         icon: ICONS.booking,
         icon: ICONS.user,
-        children: [
-          { title: 'Creer une demande', path: PATH_DASHBOARD.general.booking },
-          { title: 'Toutes les Demandes', path: PATH_DASHBOARD.general.userRequest },
-        ],
+        path: PATH_DASHBOARD.general.userRequest,
+        // children: [
+        //   // { title: 'Creer une demande', path: PATH_DASHBOARD.general.booking },
+        //   { title: 'Toutes les Demandes', path: PATH_DASHBOARD.general.userRequest },
+        // ],
+      },
+      {
+        title: 'liste des utilisateurs',
+        path: PATH_DASHBOARD.user.root,
+        icon: ICONS.user,
+        path: PATH_DASHBOARD.user.list,
+        // children: [
+        //   { title: 'liste des utilisateurs', path: PATH_DASHBOARD.user.list },
+        //   // { title: 'Ajouter', path: PATH_DASHBOARD.user.new },
+        // ],
       },
     ],
   },
 
   // MANAGEMENT
   // ----------------------------------------------------------------------
-  {
-    subheader: 'Administration',
-    items: [
-      // USER
-      {
-        title: 'utilisateurs',
-        path: PATH_DASHBOARD.user.root,
-        icon: ICONS.user,
-        children: [
-          { title: 'liste des utilisateurs', path: PATH_DASHBOARD.user.list },
-          // { title: 'Ajouter', path: PATH_DASHBOARD.user.new },
-        ],
-      },
-    ],
-  },
+  // {
+  //   subheader: '',
+  //   items: [
+  //     // USER
+  //     {
+  //       title: 'liste des utilisateurs',
+  //       path: PATH_DASHBOARD.user.root,
+  //       icon: ICONS.user,
+  //       path: PATH_DASHBOARD.user.list,
+  //       // children: [
+  //       //   { title: 'liste des utilisateurs', path: PATH_DASHBOARD.user.list },
+  //       //   // { title: 'Ajouter', path: PATH_DASHBOARD.user.new },
+  //       // ],
+  //     },
+  //   ],
+  // },
 ];
 
 export default NAV_ADMIN_CONFIG;

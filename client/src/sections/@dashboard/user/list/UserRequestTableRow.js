@@ -9,7 +9,7 @@ import Iconify from '../../../../components/Iconify';
 import { TableMoreMenu } from '../../../../components/table';
 import RequestDetailsModal from './RequestDetailsModal';
 import ConfirmationModal from 'src/components/dialog/ConfirmationModal';
-import { getStatus, getStatusColor } from 'src/utils/utils.util';
+import { getStatus, getStatusColor, getUserRequestName } from 'src/utils/utils.util';
 import StatusDropdown from './StatusDropdown';
 import { useDispatch } from 'react-redux';
 import EditUserRequestModal from 'src/components/dialog/EditUserRequestModal';
@@ -31,7 +31,7 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
   const theme = useTheme();
   const dispatch = useDispatch();
 
-  const { user, avatarUrl, mission, desciption, location, status } = row;
+  const { user, avatarUrl, mission, desciption, motif, startDate, endDate, location, status, request_type } = row;
   const { nomemp, premp, email, matemp, foncemp, password, type } = user;
 
   const [openMenu, setOpenMenuActions] = useState(null);
@@ -100,7 +100,7 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
         <Checkbox checked={selected} onClick={onSelectRow} />
       </TableCell>
 
-      <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+      <TableCell sx={{ display: 'flex', alignItems: 'center', justifyItems: 'center' }}>
         <Avatar alt={nomemp} src={avatarUrl} sx={{ mr: 2 }} />
         <Typography variant="subtitle2" noWrap>
           {nomemp} {premp}
@@ -110,13 +110,16 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
       <TableCell align="left">{matemp}</TableCell>
 
       <TableCell align="left" sx={{ textJustify: 'justify' }}>
-        {mission && 'Mission : ' + mission}
+        {getUserRequestName(request_type)}
       </TableCell>
 
-      <TableCell align="center" sx={{ textAlign: 'justify' }}>
+      <TableCell align="center" sx={{ textAlign: 'left', minWidth: 250 }}>
+        {`Motif : ${motif}`}
         {location && (
           <>
             <Box>Lieu de mission : {location}</Box>
+            <Divider />
+            {mission && 'Mission : ' + mission}
             <Divider />
           </>
         )}
@@ -140,22 +143,20 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
                 >
                   <span
                     onClick={() => {
-                      if (user && user.isAdmin) {
-                        setEditState(true);
-                      }
+                      // if (user && user?.isAdmin) {
+                      setEditState(true);
+                      // }
                     }}
                   >
                     {getStatus(status)}
                   </span>
                 </Label>
 
-                {user?.isAdmin ? 'true' : 'false'}
+                {/* {user?.isAdmin ? 'true' : 'false'} */}
 
-                {user && user.isAdmin && (
-                  <Button onClick={() => setEditState(true)}>
-                    <Iconify icon={'eva:edit-fill'} />
-                  </Button>
-                )}
+                {/* <Button onClick={() => setEditState(true)}>
+                  <Iconify icon={'eva:edit-fill'} />
+                </Button> */}
               </>
             )}
           </Grid>
@@ -202,10 +203,12 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
                 Voir la demande
               </MenuItem>
 
-              <MenuItem onClick={handleOpenEdit}>
-                <Iconify icon={'eva:edit-fill'} />
-                Modifier
-              </MenuItem>
+              {user && !user.isAdmin && (
+                <MenuItem onClick={handleOpenEdit}>
+                  <Iconify icon={'eva:edit-fill'} />
+                  Modifier
+                </MenuItem>
+              )}
 
               {user && row && (user?.isAdmin || row?.updated_by === user?.id) && row.status != 'DELETED' && (
                 <MenuItem onClick={handleOpenDelete} sx={{ color: 'error.main' }}>

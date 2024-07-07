@@ -72,7 +72,8 @@ const ROLE_OPTIONS = [
 const TABLE_HEAD = [
   { id: 'name', label: 'Nom & Prénoms', align: 'left' },
   { id: 'mat', label: 'Matricule', align: 'left' },
-  { id: 'mission', label: 'Mission', align: 'left' },
+  // { id: 'demande', label: 'demande', align: 'left' },
+  { id: 'demande', label: 'demande', align: 'left' },
   { id: 'description', label: 'Description', align: 'left' },
   // { id: 'role', label: 'Role', align: 'left' },
   // { id: 'isVerified', label: 'Verified', align: 'center' },
@@ -123,8 +124,8 @@ export default function UserRequestList() {
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
 
-  const handleFilterName = (filterName) => {
-    setFilterName(filterName);
+  const handleFilterMatricule = (mat) => {
+    setFilterName(mat);
     setPage(0);
   };
 
@@ -167,6 +168,23 @@ export default function UserRequestList() {
       payload += `?user_id=${user?.id}`;
     }
     dispatch(getUserRequests(payload));
+  };
+
+  const listFiltered = () => {
+    let list = [];
+
+    if (userRequest && userRequest.requests && Array.isArray(userRequest.requests)) {
+      list = userRequest.requests;
+    }
+
+    if (filterName && filterName != '') {
+      list = list.filter(
+        (item) =>
+          item && item.user && item.user.matemp && item.user.matemp.toLowerCase().includes(filterName.toLowerCase())
+      );
+    }
+
+    return list;
   };
 
   /**
@@ -259,15 +277,13 @@ export default function UserRequestList() {
 
           <Divider />
 
-          {false && (
-            <UserTableToolbar
-              filterName={filterName}
-              filterRole={filterRole}
-              onFilterName={handleFilterName}
-              onFilterRole={handleFilterRole}
-              optionsRole={ROLE_OPTIONS}
-            />
-          )}
+          <UserTableToolbar
+            filterName={filterName}
+            filterRole={filterRole}
+            onFilterName={handleFilterMatricule}
+            onFilterRole={handleFilterRole}
+            optionsRole={ROLE_OPTIONS}
+          />
 
           {userRequest && userRequest.isLoading && userRequest.actionType === ACTION_FETCH_ALL && (
             <>
@@ -318,32 +334,36 @@ export default function UserRequestList() {
                 />
 
                 <TableBody>
-                  {userRequest && userRequest?.requests?.length == 0 && (
+                  {/* {listFiltered().length < 0 && (
                     <TableRow>
                       <TableCell colSpan={6}>
                         <EmptyContent title="Aucune demande(s)" />
                       </TableCell>
                     </TableRow>
+                  )} */}
+
+                  {listFiltered() &&
+                    listFiltered().length > 0 &&
+                    listFiltered()
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((row) => (
+                        <UserRequestTableRow
+                          key={row.id}
+                          row={row}
+                          selected={selected.includes(row.id)}
+                          onSelectRow={() => onSelectRow(row.id)}
+                          onDeleteRow={() => {
+                            handleDeleteRow(row.id);
+                          }}
+                          onEditRow={() => handleEditRow(row.name)}
+                        />
+                      ))}
+
+                  {listFiltered() && listFiltered().length <= 0 && (
+                    <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
                   )}
 
-                  {userRequest &&
-                    userRequest?.requests?.length > 0 &&
-                    userRequest?.requests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                      <UserRequestTableRow
-                        key={row.id}
-                        row={row}
-                        selected={selected.includes(row.id)}
-                        onSelectRow={() => onSelectRow(row.id)}
-                        onDeleteRow={() => {
-                          handleDeleteRow(row.id);
-                        }}
-                        onEditRow={() => handleEditRow(row.name)}
-                      />
-                    ))}
-
-                  <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
-
-                  <TableNoData isNotFound={isNotFound} />
+                  {listFiltered() && listFiltered().length <= 0 && <TableNoData isNotFound={isNotFound} />}
                 </TableBody>
               </Table>
             </TableContainer>

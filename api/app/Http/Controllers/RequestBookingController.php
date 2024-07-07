@@ -23,7 +23,7 @@ class RequestBookingController extends Controller
     public function get(Request $request)
     {
         $user_id = $request->user_id;
-        $requests = $user_id ? RequestModel::where('user_id', $user_id)->get() : RequestModel::all();
+        $requests = $user_id ? RequestModel::where('user_id', $user_id)->get() : RequestModel::orderBy('id', 'desc')->get();
         $requests = $requests ? RequestResource::collection($requests) : collect();
 
         return ResponseService::success($requests, Response::HTTP_OK);
@@ -50,6 +50,7 @@ class RequestBookingController extends Controller
             'startDate' => 'nullable|string',
             'endDate' => 'nullable|string',
             'motif' => 'nullable|string',
+            'request_type' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -71,6 +72,7 @@ class RequestBookingController extends Controller
             $demande->updated_by = auth()->user()->id;
             // dd($demande);
             $demande->update();
+            NotificationService::afterUpdateRequest($demande->refresh());
         } else {
             // ? CREATION
             $demande = new RequestModel();
@@ -79,26 +81,13 @@ class RequestBookingController extends Controller
             $demande->updated_by = auth()->user()->id;
             $demande->save();
 
-            // send notification
-            try {
-                $demande->refresh();
-                $notifiRequestName = $demande->mission ?? $demande->object ?? $demande->motif ?? '';
-                NotificationService::notify(
-                    auth()->user(),
-                    'Vous avez envoyé une demande : ' . $notifiRequestName,
-                    'Merci, nous traitons votre demande',
-                    [
-                        'title' => 'Nouvelle demande en attente : ' . $notifiRequestName,
-                        'message' => 'Nouvelle demande soumise : '  . $notifiRequestName,
-                    ]
-                );
-            } catch (\Throwable $th) {
-                //throw $th;
-            }
+            // Envoyer une notification
+            NotificationService::afterCreateRequest($demande);
         }
 
         return ResponseService::success($demande->refresh(), "Store successfully");
     }
+
 
     /**
      * Delete a request from the database.
