@@ -30,7 +30,7 @@ const NAV_ADMIN_CONFIG = [
     subheader: '',
     items: [
       {
-        title: 'Demandes',
+        title: 'Gestion des demandes',
         path: PATH_DASHBOARD.general.booking,
         icon: ICONS.booking,
         icon: ICONS.user,
@@ -41,7 +41,7 @@ const NAV_ADMIN_CONFIG = [
         // ],
       },
       {
-        title: 'liste des utilisateurs',
+        title: 'Gestion des utilisateurs',
         path: PATH_DASHBOARD.user.root,
         icon: ICONS.user,
         path: PATH_DASHBOARD.user.list,

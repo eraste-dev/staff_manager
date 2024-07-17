@@ -129,24 +129,24 @@ const RequestDetailsModal = ({ request, open, handleClose, handleOpen, handleOpe
               </>
             )}
 
-            {request.startDate && (
+            {request.startDateFormatted && (
               <>
                 <Typography variant="subtitle1" gutterBottom>
                   Date de début :
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 'bold', bgcolor: 'grey.200', p: 1 }}>
-                  {request.startDate}
+                  {request.startDateFormatted}
                 </Typography>
               </>
             )}
 
-            {request.endDate && (
+            {request.endDateFormatted && (
               <>
                 <Typography variant="subtitle1" gutterBottom>
                   Date de fin :
                 </Typography>
                 <Typography variant="body1" sx={{ fontWeight: 'bold', bgcolor: 'grey.200', p: 1 }}>
-                  {request.endDate}
+                  {request.endDateFormatted}
                 </Typography>
               </>
             )}
@@ -203,7 +203,7 @@ const RequestDetailsModal = ({ request, open, handleClose, handleOpen, handleOpe
             Fermer
           </Button>
 
-          {user && !user.isAdmin && handleOpenEdit && request.status != 'ACTIVE' && (
+          {false && user && !user.isAdmin && handleOpenEdit && request.status != 'ACTIVE' && (
             <Button variant="outlined" onClick={handleOpenEdit}>
               Modifier
             </Button>

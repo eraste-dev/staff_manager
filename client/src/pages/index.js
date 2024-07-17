@@ -21,6 +21,7 @@ import { LoginForm } from '../sections/auth/login';
 const RootStyle = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
     display: 'flex',
+    padding: theme.spacing(25, 0, 0, 0),
   },
 }));
 

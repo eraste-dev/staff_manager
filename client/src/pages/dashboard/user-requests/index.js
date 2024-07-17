@@ -50,6 +50,7 @@ import UserRequestTableRow from 'src/sections/@dashboard/user/list/UserRequestTa
 import { ACTION_DELETE, ACTION_FETCH_ALL } from '../create-request-form/ids.constant';
 import { isExpired } from 'src/utils/utils.util';
 import EmptyContent from 'src/components/EmptyContent';
+import UserRequestTableToolbar from 'src/sections/@dashboard/user/list/UserRequestTableToolbar';
 
 // ----------------------------------------------------------------------
 
@@ -180,7 +181,19 @@ export default function UserRequestList() {
     if (filterName && filterName != '') {
       list = list.filter(
         (item) =>
-          item && item.user && item.user.matemp && item.user.matemp.toLowerCase().includes(filterName.toLowerCase())
+          (item &&
+            item.user &&
+            item.user.matemp &&
+            item.user.matemp.toLowerCase().includes(filterName.toLowerCase())) ||
+          (item &&
+            item.user &&
+            item.user.nomemp &&
+            item.user.nomemp.toLowerCase().includes(filterName.toLowerCase())) ||
+          (item &&
+            item.user &&
+            item.user.prenomp &&
+            item.user.prenomp.toLowerCase().includes(filterName.toLowerCase())) ||
+          (item && item.user && item.user.matemp && item.user.matemp.toLowerCase().includes(filterName.toLowerCase()))
       );
     }
 
@@ -277,7 +290,7 @@ export default function UserRequestList() {
 
           <Divider />
 
-          <UserTableToolbar
+          <UserRequestTableToolbar
             filterName={filterName}
             filterRole={filterRole}
             onFilterName={handleFilterMatricule}
@@ -373,16 +386,18 @@ export default function UserRequestList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={dataFiltered.length}
+              count={listFiltered().length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={onChangePage}
               onRowsPerPageChange={onChangeRowsPerPage}
+              labelDisplayedRows={({ from, to, count }) => `${from}–${to} de ${count}`}
+              labelRowsPerPage="Lignes par page:"
             />
 
             <FormControlLabel
               control={<Switch checked={dense} onChange={onChangeDense} />}
-              label="Dense"
+              label="Densité"
               sx={{ px: 3, py: 1.5, top: 0, position: { md: 'absolute' } }}
             />
           </Box>

@@ -108,9 +108,11 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
 
   return (
     <TableRow hover selected={selected}>
-      <TableCell padding="checkbox">
-        <Checkbox checked={selected} onClick={onSelectRow} />
-      </TableCell>
+      {false && (
+        <TableCell padding="checkbox">
+          <Checkbox checked={selected} onClick={onSelectRow} />
+        </TableCell>
+      )}
 
       <TableCell sx={{ display: 'flex', alignItems: 'center', justifyItems: 'center' }}>
         <Avatar alt={nomemp} src={avatarUrl} sx={{ mr: 2 }} />

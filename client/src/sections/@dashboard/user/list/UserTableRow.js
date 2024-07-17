@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Avatar, Checkbox, TableRow, TableCell, Typography, MenuItem } from '@mui/material';
+import { Avatar, Checkbox, TableRow, TableCell, Typography, MenuItem, Button } from '@mui/material';
 // components
 import Label from '../../../../components/Label';
 import Iconify from '../../../../components/Iconify';
@@ -77,9 +77,11 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
 
   return (
     <TableRow hover selected={selected}>
-      <TableCell padding="checkbox">
-        <Checkbox checked={selected} onClick={onSelectRow} />
-      </TableCell>
+      {false && (
+        <TableCell padding="checkbox">
+          <Checkbox checked={selected} onClick={onSelectRow} />
+        </TableCell>
+      )}
 
       <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
         <Avatar alt={nomemp} src={avatar} sx={{ mr: 2 }} />
@@ -95,15 +97,17 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
       </TableCell>
 
       <TableCell align="center">
-        <Iconify
-          icon={isAdmin ? 'eva:checkmark-circle-fill' : 'eva:close-fill'}
-          sx={{
-            width: 20,
-            height: 20,
-            color: 'success.main',
-            ...(!isAdmin && { color: 'error.main' }),
-          }}
-        />
+        {isAdmin && (
+          <Iconify
+            icon={isAdmin ? 'eva:checkmark-circle-fill' : 'eva:close-fill'}
+            sx={{
+              width: 20,
+              height: 20,
+              color: 'success.main',
+              ...(!isAdmin && { color: 'error.main' }),
+            }}
+          />
+        )}
       </TableCell>
 
       <TableCell align="right">
@@ -123,24 +127,35 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           }}
         />
 
-        <TableMoreMenu
-          open={openMenu}
-          onOpen={handleOpenMenu}
-          onClose={handleCloseMenu}
-          actions={
-            <>
-              <MenuItem onClick={handleOpenDelete} sx={{ color: 'error.main' }}>
-                <Iconify icon={'eva:trash-2-outline'} />
-                Supprimer
-              </MenuItem>
+        {!isAdmin && (
+          <Button variant="outlined" color="error" onClick={handleOpenDelete} sx={{ color: 'error.main' }}>
+            <Iconify icon={'eva:trash-2-outline'} />
+            Supprimer
+          </Button>
+        )}
 
-              <MenuItem onClick={handleOpenEdit}>
-                <Iconify icon={'eva:edit-fill'} />
-                Modifier
-              </MenuItem>
-            </>
-          }
-        />
+        {false && (
+          <TableMoreMenu
+            open={openMenu}
+            onOpen={handleOpenMenu}
+            onClose={handleCloseMenu}
+            actions={
+              <>
+                <MenuItem onClick={handleOpenDelete} sx={{ color: 'error.main' }}>
+                  <Iconify icon={'eva:trash-2-outline'} />
+                  Supprimer
+                </MenuItem>
+
+                {false && (
+                  <MenuItem onClick={handleOpenEdit}>
+                    <Iconify icon={'eva:edit-fill'} />
+                    Modifier
+                  </MenuItem>
+                )}
+              </>
+            }
+          />
+        )}
       </TableCell>
     </TableRow>
   );

@@ -9,7 +9,7 @@ import Login from '../pages/auth/login';
 import LoadingScreen from '../components/LoadingScreen';
 import { useDispatch, useSelector } from 'react-redux';
 import { PATH_DASHBOARD } from 'src/routes/paths';
-import { logout } from 'src/redux/slices/user';
+import { logout, logout_ } from 'src/redux/slices/user';
 
 // ----------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ export default function AuthGuard({ children }) {
 
   if (!isAuthenticated) {
     if (pathname !== requestedLocation) {
-      dispatch(logout());
+      dispatch(logout_());
       router.replace(PATH_DASHBOARD.general.booking);
       setRequestedLocation(pathname);
     }

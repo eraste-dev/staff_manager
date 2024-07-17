@@ -70,6 +70,10 @@ class RequestBookingController extends Controller
             // ? UPDATE
             $demande = RequestModel::find($validatedData['id']);
             $demande->fill($validatedData);
+
+            // $demande->startDate = $demande->startDate;
+            // $demande->endDate = $demande->endDate;
+
             $demande->status = $validatedData['status'] ?? $demande->status;
             $demande->updated_by = auth()->user()->id;
             // dd($demande);

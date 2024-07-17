@@ -20,6 +20,7 @@ import {
   TableContainer,
   TablePagination,
   FormControlLabel,
+  Grid,
 } from '@mui/material';
 // routes
 import { PATH_DASHBOARD } from '../../../routes/paths';
@@ -43,6 +44,8 @@ import { useSnackbar } from 'notistack';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteUser, fetchAllUsers } from 'src/redux/slices/user';
 import { ACTION_USERS_DELETE } from '../create-request-form/ids.constant';
+import { AppWidgetSummary } from 'src/sections/@dashboard/general/app';
+import { useTheme } from '@emotion/react';
 
 // ----------------------------------------------------------------------
 
@@ -98,6 +101,8 @@ export default function UserList() {
   } = useTable();
 
   const { themeStretch } = useSettings();
+
+  const theme = useTheme();
 
   const { push } = useRouter();
 
@@ -162,6 +167,34 @@ export default function UserList() {
     dispatch(fetchAllUsers());
   };
 
+  const usersFiltered = () => {
+    let data = [];
+
+    if (users && users.list) {
+      data = users.list;
+    }
+
+    if (data && data.length > 0) {
+      if (filterName && filterName != '') {
+        data = data.filter((user) => {
+          // const fields = ['nomemp', 'premp', 'email', 'matemp', 'foncemp', 'password', 'type', 'status'];
+
+          return (
+            user.nomemp.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
+            user.premp.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
+            user.matemp.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
+            user.foncemp.toLowerCase().indexOf(filterName.toLowerCase()) !== -1 ||
+            user.email.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+          );
+        });
+      }
+
+      data = data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    }
+
+    return data;
+  };
+
   // FETCH ALL DATA
   useEffect(() => {
     if ((users && !users.list) || (users && !users.list.length)) {
@@ -199,6 +232,28 @@ export default function UserList() {
           }
         />
 
+        {users && users.list && (
+          <Grid container spacing={3} my={2}>
+            <Grid item xs={12} md={4} p={2}>
+              <AppWidgetSummary title="Total" total={users && users.list && users.list.length} />
+            </Grid>
+
+            <Grid item xs={12} md={4} p={2}>
+              <AppWidgetSummary
+                title="Administrateur(s)"
+                total={users && users.list && users.list.filter((user) => user.isAdmin).length}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={4} p={2}>
+              <AppWidgetSummary
+                title="Utilisateur(s)"
+                total={users && users.list && users.list.filter((user) => !user.isAdmin).length}
+              />
+            </Grid>
+          </Grid>
+        )}
+
         <Card>
           <Tabs
             allowScrollButtonsMobile
@@ -215,15 +270,13 @@ export default function UserList() {
 
           <Divider />
 
-          {false && (
-            <UserTableToolbar
-              filterName={filterName}
-              filterRole={filterRole}
-              onFilterName={handleFilterName}
-              onFilterRole={handleFilterRole}
-              optionsRole={ROLE_OPTIONS}
-            />
-          )}
+          <UserTableToolbar
+            filterName={filterName}
+            filterRole={filterRole}
+            onFilterName={handleFilterName}
+            onFilterRole={handleFilterRole}
+            optionsRole={ROLE_OPTIONS}
+          />
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800, position: 'relative' }}>
@@ -265,24 +318,23 @@ export default function UserList() {
                 />
 
                 <TableBody>
-                  {users &&
-                    users.list &&
-                    users.list
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((row) => (
-                        <UserTableRow
-                          key={row.id}
-                          row={row}
-                          selected={selected.includes(row.id)}
-                          onSelectRow={() => onSelectRow(row.id)}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
-                          onEditRow={() => handleEditRow(row.name)}
-                        />
-                      ))}
+                  {usersFiltered().map((row) => (
+                    <UserTableRow
+                      key={row.id}
+                      row={row}
+                      selected={selected.includes(row.id)}
+                      onSelectRow={() => onSelectRow(row.id)}
+                      onDeleteRow={() => handleDeleteRow(row.id)}
+                      onEditRow={() => handleEditRow(row.name)}
+                    />
+                  ))}
 
-                  <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
-
-                  <TableNoData isNotFound={isNotFound} />
+                  {usersFiltered().length === 0 && (
+                    <>
+                      <TableEmptyRows height={denseHeight} emptyRows={emptyRows(page, rowsPerPage, tableData.length)} />
+                      <TableNoData isNotFound={isNotFound} />
+                    </>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -292,16 +344,18 @@ export default function UserList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={dataFiltered.length}
+              count={usersFiltered().length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={onChangePage}
               onRowsPerPageChange={onChangeRowsPerPage}
+              labelRowsPerPage="Lignes par page"
+              labelDisplayedRows={({ from, to, count }) => `${from}–${to} de ${count !== -1 ? count : `plus de ${to}`}`}
             />
 
             <FormControlLabel
               control={<Switch checked={dense} onChange={onChangeDense} />}
-              label="Dense"
+              label="Densité"
               sx={{ px: 3, py: 1.5, top: 0, position: { md: 'absolute' } }}
             />
           </Box>

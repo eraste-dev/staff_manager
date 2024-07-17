@@ -102,8 +102,12 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        $token = JWTAuth::getToken(); // Obtiens le token JWT actuel
-        JWTAuth::invalidate($token); // Invalide le token, l'ajoutant à la liste noire
+        try {
+            $token = JWTAuth::getToken(); // Obtiens le token JWT actuel
+            JWTAuth::invalidate($token); // Invalide le token, l'ajoutant à la liste noire
+        } catch (\Throwable $th) {
+            return ResponseService::success('Successfully logged out, token invalid');
+        }
 
         return ResponseService::success('Successfully logged out');
     }

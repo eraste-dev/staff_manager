@@ -16,7 +16,7 @@ import MyAvatar from '../../../components/MyAvatar';
 import MenuPopover from '../../../components/MenuPopover';
 import { IconButtonAnimate } from '../../../components/animate';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from 'src/redux/slices/user';
+import { logout, logout_ } from 'src/redux/slices/user';
 
 // ----------------------------------------------------------------------
 
@@ -54,7 +54,7 @@ export default function AccountPopover() {
 
   const handleLogout = async () => {
     try {
-      dispatch(logout());
+      dispatch(logout_());
       router.replace(PATH_AUTH.login);
 
       if (isMountedRef.current) handleClose();

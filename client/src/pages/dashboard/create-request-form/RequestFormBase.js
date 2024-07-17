@@ -93,7 +93,11 @@ function RequestFormBase({ open, handleClose, requestData }) {
   } = methods;
 
   const convertDateToTimeStamp = (date) => {
-    return new Date(parseInt(date)).getTime();
+    const timestamp = new Date(date).getTime();
+    if (timestamp) {
+      return timestamp;
+    }
+    return date;
   };
 
   /**
@@ -104,6 +108,7 @@ function RequestFormBase({ open, handleClose, requestData }) {
    */
   const onSubmit = async (data) => {
     try {
+      // saveUserRequest(formatData(data));
       dispatch(saveUserRequest(formatData(data)));
       //   handleClose();
     } catch (error) {
@@ -136,10 +141,15 @@ function RequestFormBase({ open, handleClose, requestData }) {
       }
     }
 
+    if (!requestData?.id) {
+      enqueueSnackbar('Erreur du type de requête', { variant: 'error' });
+    }
+
     if (data.startDate || data.endDate) {
       data.startDate = `${convertDateToTimeStamp(data.startDate)}`;
       data.endDate = `${convertDateToTimeStamp(data.endDate)}`;
     }
+
     console.log({
       startDate: data.startDate,
       endDate: data.endDate,
@@ -318,9 +328,7 @@ function RequestFormBase({ open, handleClose, requestData }) {
                       label="Date de depart"
                       inputFormat="dd/MM/yyyy"
                       defaultValue={
-                        requestData && requestData.data
-                          ? new Date(parseInt(requestData.data.start_date_timestamp))
-                          : new Date()
+                        requestData && requestData.data ? new Date(parseInt(requestData.data.startDate)) : new Date()
                       }
                     />
                   </Grid>
@@ -331,9 +339,7 @@ function RequestFormBase({ open, handleClose, requestData }) {
                       label="Date de retour"
                       inputFormat="dd/MM/yyyy"
                       defaultValue={
-                        requestData && requestData.data
-                          ? new Date(parseInt(requestData.data.end_date_timestamp))
-                          : new Date()
+                        requestData && requestData.data ? new Date(parseInt(requestData.data.endDate)) : new Date()
                       }
                     />
                   </Grid>
@@ -348,9 +354,7 @@ function RequestFormBase({ open, handleClose, requestData }) {
                       label="Date de depart"
                       inputFormat="dd/MM/yyyy H:mm:ss "
                       defaultValue={
-                        requestData && requestData.data
-                          ? new Date(parseInt(requestData.data.start_date_timestamp))
-                          : new Date()
+                        requestData && requestData.data ? new Date(parseInt(requestData.data.startDate)) : new Date()
                       }
                     />
                   </Grid>
@@ -361,9 +365,7 @@ function RequestFormBase({ open, handleClose, requestData }) {
                       label="Date et heure de arrivée"
                       inputFormat="dd/MM/yyyy H:mm:ss"
                       defaultValue={
-                        requestData && requestData.data
-                          ? new Date(parseInt(requestData.data.end_date_timestamp))
-                          : new Date()
+                        requestData && requestData.data ? new Date(parseInt(requestData.data.endDate)) : new Date()
                       }
                     />
                   </Grid>

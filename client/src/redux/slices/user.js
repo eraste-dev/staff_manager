@@ -161,7 +161,11 @@ const slice = createSlice({
       state.updateSuccess = false;
       state.expire = action.payload.data.expire;
       state.error = null;
-      // Sauvegarder le token dans le cache
+
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('loggedIsAdmin');
+
+      // Enregistrer le token dans le cache
       localStorage.setItem('authToken', action.payload.data.token);
       localStorage.setItem('loggedIsAdmin', action.payload.data.isAdmin);
     },
@@ -187,12 +191,9 @@ const slice = createSlice({
         success: false,
         successMessage: null,
         requests: null,
-        actionType: action?.payload?.actionType ?? null,
+        actionType: null,
         actionTimeExpire: null,
       };
-
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('loggedIsAdmin');
     },
 
     /**
@@ -357,12 +358,30 @@ export const { logout } = slice.actions;
 export function login(matemp, password) {
   return async () => {
     dispatch(slice.actions.startLoading());
+    // localStorage.removeItem('authToken');
+    // localStorage.removeItem('loggedIsAdmin');
+
     try {
       const response = await axios.post('/auth/login', { matemp, password });
       dispatch(slice.actions.loginSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
+  };
+}
+
+export function logout_() {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.post('/auth/logout');
+    } catch (error) {
+      // dispatch(slice.actions.hasError(error));
+    }
+
+    // localStorage.removeItem('authToken');
+    // localStorage.removeItem('loggedIsAdmin');
+    dispatch(slice.actions.logout());
   };
 }
 

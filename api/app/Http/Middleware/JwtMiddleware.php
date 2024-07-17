@@ -31,6 +31,7 @@ class JwtMiddleware
                 return ResponseService::error('Unauthorized, user not active', 403);
             }
         } catch (\Exception $e) {
+            // dd($e);
             return ResponseService::error('INVALID_TOKEN', 403);
         }
 

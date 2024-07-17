@@ -61,7 +61,7 @@ export default function NotificationsPopover() {
   }, [notifications]);
 
   useEffect(() => {
-    if (!isLoadingNotifs && !errorNotifs && !notifications) {
+    if (!isLoadingNotifs && !errorNotifs && !notifications && user && user.id) {
       dispatch(getNotifications({ user_id: user.id }));
     }
 
@@ -115,7 +115,7 @@ export default function NotificationsPopover() {
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Scrollbar sx={{ height: { xs: 340, sm: 'auto' } }}>
+        <Scrollbar sx={{ height: { xs: 340, sm: 'auto', md: 360, lg: 400, xl: 450 } }}>
           {notifications &&
             notifications.length > 0 &&
             notifications?.filter((notification) => notification.read_at == null).length > 0 && (
