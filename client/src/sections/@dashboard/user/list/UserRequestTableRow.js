@@ -11,7 +11,7 @@ import RequestDetailsModal from './RequestDetailsModal';
 import ConfirmationModal from 'src/components/dialog/ConfirmationModal';
 import { getStatus, getStatusColor, getUserRequestName } from 'src/utils/utils.util';
 import StatusDropdown from './StatusDropdown';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import EditUserRequestModal from 'src/components/dialog/EditUserRequestModal';
 import { BookingIllustration } from 'src/assets';
 import RequestFormBase from 'src/pages/dashboard/create-request-form/RequestFormBase';
@@ -31,8 +31,20 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
   const theme = useTheme();
   const dispatch = useDispatch();
 
-  const { user, avatarUrl, mission, desciption, motif, startDate, endDate, location, status, request_type } = row;
-  const { nomemp, premp, email, matemp, foncemp, password, type } = user;
+  const { user } = useSelector((state) => state.user);
+  const {
+    user: author,
+    avatarUrl,
+    mission,
+    description,
+    motif,
+    startDate,
+    endDate,
+    location,
+    status,
+    request_type,
+  } = row;
+  const { nomemp, premp, email, matemp, foncemp, password, type } = author;
 
   const [openMenu, setOpenMenuActions] = useState(null);
   const [openDetail, setOpenDetail] = useState(false);
@@ -114,17 +126,23 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
       </TableCell>
 
       <TableCell align="center" sx={{ textAlign: 'left', minWidth: 250 }}>
-        {`Motif : ${motif}`}
-        {location && (
+        {motif ? `Motif : ${motif}` : ''}
+
+        {mission && (
           <>
-            <Box>Lieu de mission : {location}</Box>
-            <Divider />
-            {mission && 'Mission : ' + mission}
+            {'Mission : ' + mission}
             <Divider />
           </>
         )}
 
-        {desciption && desciption.length > 300 ? desciption.slice(0, 300) + '...' : desciption}
+        {location && (
+          <>
+            <Box>Lieu de mission : {location}</Box>
+            <Divider />
+          </>
+        )}
+
+        {row.desciption && row.desciption.length > 300 ? row.desciption.slice(0, 300) + '...' : row.desciption}
       </TableCell>
 
       <TableCell align="left">
@@ -143,9 +161,9 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
                 >
                   <span
                     onClick={() => {
-                      // if (user && user?.isAdmin) {
-                      setEditState(true);
-                      // }
+                      if (user && user.isAdmin) {
+                        setEditState(true);
+                      }
                     }}
                   >
                     {getStatus(status)}
@@ -153,7 +171,6 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
                 </Label>
 
                 {/* {user?.isAdmin ? 'true' : 'false'} */}
-
                 {/* <Button onClick={() => setEditState(true)}>
                   <Iconify icon={'eva:edit-fill'} />
                 </Button> */}
@@ -173,6 +190,7 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
           open={openDetail}
           handleClose={handleCloseDetail}
           handleOpen={handleOpenDetail}
+          handleOpenEdit={handleOpenEdit}
         />
 
         {/* UPDATE */}
@@ -203,14 +221,14 @@ export default function UserRequestTableRow({ row, selected, onEditRow, onSelect
                 Voir la demande
               </MenuItem>
 
-              {user && !user.isAdmin && (
+              {user && !user.isAdmin && row.status != 'ACTIVE' && (
                 <MenuItem onClick={handleOpenEdit}>
                   <Iconify icon={'eva:edit-fill'} />
                   Modifier
                 </MenuItem>
               )}
 
-              {user && row && (user?.isAdmin || row?.updated_by === user?.id) && row.status != 'DELETED' && (
+              {user && user.isAdmin && row.status != 'DELETED' && (
                 <MenuItem onClick={handleOpenDelete} sx={{ color: 'error.main' }}>
                   <Iconify icon={'eva:trash-2-outline'} />
                   Supprimer

@@ -51,7 +51,7 @@ export default function NotificationsPopover() {
   };
 
   const refreshNotifications = () => {
-    dispatch(getNotifications());
+    dispatch(getNotifications({ user_id: user.id }));
   };
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function NotificationsPopover() {
 
   useEffect(() => {
     if (!isLoadingNotifs && !errorNotifs && !notifications) {
-      dispatch(getNotifications());
+      dispatch(getNotifications({ user_id: user.id }));
     }
 
     if (notifications && !isLoadingNotifs) {
@@ -75,10 +75,6 @@ export default function NotificationsPopover() {
       };
     }
   }, [dispatch, errorNotifs, isLoadingNotifs, notifications, refreshNotifications]);
-
-  if (!notifications) {
-    return null;
-  }
 
   return (
     <>
@@ -109,6 +105,12 @@ export default function NotificationsPopover() {
               </IconButtonAnimate>
             </Tooltip>
           )}
+
+          <Tooltip title="Rafraichir">
+            <IconButtonAnimate color="primary" onClick={() => dispatch(getNotifications({ user_id: user.id }))}>
+              <Iconify icon="eva:refresh-outline" width={20} height={20} />
+            </IconButtonAnimate>
+          </Tooltip>
         </Box>
 
         <Divider sx={{ borderStyle: 'dashed' }} />

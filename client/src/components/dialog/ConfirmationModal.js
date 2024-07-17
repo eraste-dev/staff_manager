@@ -5,7 +5,7 @@ import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography }
 const ConfirmationModal = ({ title, message, confirmText, cancelText, handleDelete, open, handleClose }) => {
   return (
     <>
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
         <DialogTitle>{title}</DialogTitle>
 
         <DialogContent>
@@ -13,11 +13,11 @@ const ConfirmationModal = ({ title, message, confirmText, cancelText, handleDele
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleClose} variant="outlined" color="error">
             {cancelText}
           </Button>
 
-          <Button onClick={handleDelete} color="error">
+          <Button onClick={handleDelete} variant="outlined" color="secondary">
             {confirmText}
           </Button>
         </DialogActions>

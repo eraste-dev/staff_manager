@@ -55,6 +55,7 @@ Route::group(['prefix' => 'v1'], function () {
 
             // ? NOTIFICATION USER
             Route::get('notifications',                     [NotificationController::class, 'index'])->name('user.notifications');
+            Route::get('{user_id}/notifications',           [NotificationController::class, 'getByUserId']);
             Route::get('/notifications/unread',             [NotificationController::class, 'unread']);
             Route::post('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
             Route::delete('/notifications/{id}',            [NotificationController::class, 'destroy']);

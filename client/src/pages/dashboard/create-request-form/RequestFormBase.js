@@ -37,6 +37,7 @@ import {
 } from './ids.constant';
 import { getUserRequests, initUserRequest, saveUserRequest } from 'src/redux/slices/user';
 import { DatePicker, DateTimePicker } from '@mui/lab';
+import RHFDatePicker from 'src/components/hook-form/RHFDatePicker';
 
 function RequestFormBase({ open, handleClose, requestData }) {
   const isMountedRef = useIsMountedRef();
@@ -91,6 +92,10 @@ function RequestFormBase({ open, handleClose, requestData }) {
     formState: { errors, isSubmitting, isSubmitted, isValid },
   } = methods;
 
+  const convertDateToTimeStamp = (date) => {
+    return new Date(parseInt(date)).getTime();
+  };
+
   /**
    * Submits the form data asynchronously.
    *
@@ -99,7 +104,6 @@ function RequestFormBase({ open, handleClose, requestData }) {
    */
   const onSubmit = async (data) => {
     try {
-      // console.table(data);
       dispatch(saveUserRequest(formatData(data)));
       //   handleClose();
     } catch (error) {
@@ -123,6 +127,23 @@ function RequestFormBase({ open, handleClose, requestData }) {
     if (!user || !requestData) {
       throw new Error('Invalid user or requestData');
     }
+
+    // console.table(data);
+    if (data.startDate && data.endDate) {
+      if (data.startDate > data.endDate) {
+        enqueueSnackbar('La date de début doit être inférieure à la date de fin', { variant: 'error' });
+        return;
+      }
+    }
+
+    if (data.startDate || data.endDate) {
+      data.startDate = `${convertDateToTimeStamp(data.startDate)}`;
+      data.endDate = `${convertDateToTimeStamp(data.endDate)}`;
+    }
+    console.log({
+      startDate: data.startDate,
+      endDate: data.endDate,
+    });
 
     return {
       ...data,
@@ -292,38 +313,28 @@ function RequestFormBase({ open, handleClose, requestData }) {
               {canShowDate() && (
                 <>
                   <Grid item xs={12} md={6} lg={6}>
-                    <Controller
+                    <RHFDatePicker
                       name="startDate"
-                      control={control}
-                      render={({ field, fieldState: { error } }) => (
-                        <DatePicker
-                          value={new Date(field.value)}
-                          label="Date de départ"
-                          inputFormat="dd/MM/yyyy"
-                          renderInput={(params) => (
-                            <TextField fullWidth {...params} error={!!error} helperText={error?.message} />
-                          )}
-                          onChange={(e) => setValue('startDate', new Date(e).getTime())}
-                        />
-                      )}
+                      label="Date de depart"
+                      inputFormat="dd/MM/yyyy"
+                      defaultValue={
+                        requestData && requestData.data
+                          ? new Date(parseInt(requestData.data.start_date_timestamp))
+                          : new Date()
+                      }
                     />
                   </Grid>
 
                   <Grid item xs={12} md={6} lg={6}>
-                    <Controller
+                    <RHFDatePicker
                       name="endDate"
-                      control={control}
-                      render={({ field, fieldState: { error } }) => (
-                        <DatePicker
-                          value={new Date(field.value)}
-                          label="Date de retour"
-                          inputFormat="dd/MM/yyyy"
-                          renderInput={(params) => (
-                            <TextField fullWidth {...params} error={!!error} helperText={error?.message} />
-                          )}
-                          onChange={(e) => setValue('endDate', new Date(e).getTime())}
-                        />
-                      )}
+                      label="Date de retour"
+                      inputFormat="dd/MM/yyyy"
+                      defaultValue={
+                        requestData && requestData.data
+                          ? new Date(parseInt(requestData.data.end_date_timestamp))
+                          : new Date()
+                      }
                     />
                   </Grid>
                 </>
@@ -332,38 +343,28 @@ function RequestFormBase({ open, handleClose, requestData }) {
               {canShowDateTime() && (
                 <>
                   <Grid item xs={12} md={6} lg={6}>
-                    <Controller
+                    <RHFDatePicker
                       name="startDate"
-                      control={control}
-                      render={({ field, fieldState: { error } }) => (
-                        <DateTimePicker
-                          value={new Date(field.value)}
-                          label="Date et heure de départ"
-                          inputFormat="dd/MM/yyyy H:mm:ss "
-                          renderInput={(params) => (
-                            <TextField fullWidth {...params} error={!!error} helperText={error?.message} />
-                          )}
-                          onChange={(e) => setValue('startDate', e)}
-                        />
-                      )}
+                      label="Date de depart"
+                      inputFormat="dd/MM/yyyy H:mm:ss "
+                      defaultValue={
+                        requestData && requestData.data
+                          ? new Date(parseInt(requestData.data.start_date_timestamp))
+                          : new Date()
+                      }
                     />
                   </Grid>
 
                   <Grid item xs={12} md={6} lg={6}>
-                    <Controller
+                    <RHFDatePicker
                       name="endDate"
-                      control={control}
-                      render={({ field, fieldState: { error } }) => (
-                        <DateTimePicker
-                          value={new Date(field.value)}
-                          label="Date et heure de arrivée"
-                          inputFormat="dd/MM/yyyy H:mm:ss "
-                          renderInput={(params) => (
-                            <TextField fullWidth {...params} error={!!error} helperText={error?.message} />
-                          )}
-                          onChange={(e) => setValue('endDate', e)}
-                        />
-                      )}
+                      label="Date et heure de arrivée"
+                      inputFormat="dd/MM/yyyy H:mm:ss"
+                      defaultValue={
+                        requestData && requestData.data
+                          ? new Date(parseInt(requestData.data.end_date_timestamp))
+                          : new Date()
+                      }
                     />
                   </Grid>
                 </>
@@ -377,7 +378,11 @@ function RequestFormBase({ open, handleClose, requestData }) {
 
               {canShowMotif() && (
                 <Grid item xs={12} md={12} lg={12}>
-                  <RHFTextField name="motif" label="Motif" />
+                  <RHFTextField
+                    name="motif"
+                    label="Motif"
+                    defaultValue={(requestData && requestData.data && requestData.data.motif) || ''}
+                  />
                 </Grid>
               )}
 
@@ -430,7 +435,7 @@ function RequestFormBase({ open, handleClose, requestData }) {
               disabled={isSubmitting || !isValid}
               variant="contained"
             >
-              Envoyer la demande
+              {requestData && requestData.data && requestData.data.id ? 'Modifier la demande' : 'Envoyer la demande'}
             </Button>
           </DialogActions>
         </Dialog>

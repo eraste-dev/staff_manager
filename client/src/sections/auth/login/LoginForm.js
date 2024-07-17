@@ -66,7 +66,11 @@ export default function LoginForm() {
   useEffect(() => {
     if (!isLoading && success && !error) {
       enqueueSnackbar('Connexion reussie');
-      router.replace(PATH_DASHBOARD.general.booking);
+      if(user.isAdmin) {
+        router.replace(PATH_DASHBOARD.general.userRequest);
+      } else {
+        router.replace(PATH_DASHBOARD.general.booking);
+      }
     }
 
     if (!isLoading && !success && error) {

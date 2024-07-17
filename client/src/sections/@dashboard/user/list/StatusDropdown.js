@@ -10,7 +10,7 @@ import { ACTION_UPDATE } from 'src/pages/dashboard/create-request-form/ids.const
 import ConfirmRejectModal from 'src/components/dialog/ConfirmRejectModal';
 
 // export const STATE_ARRAY = ['ACTIVE', 'INACTIVE', 'DELETED', 'REJECTED', 'PENDING', 'BLOCKED'];
-export const STATE_ARRAY = ['ACTIVE', 'REJECTED', 'DELETED', 'PENDING'];
+export const STATE_ARRAY = ['ACTIVE', 'REJECTED', 'PENDING'];
 
 const StatusDropdown = ({ current, handleClose }) => {
   const dispatch = useDispatch();
@@ -72,17 +72,19 @@ const StatusDropdown = ({ current, handleClose }) => {
   const handleStatusChange = (event) => {
     if (event && event.target && event.target.value) {
       const newStatus = event.target.value;
-      if (newStatus === 'REJECTED') {
-        handleOpenDelete();
-      } else {
-        setStatus(newStatus);
-        updateUserRequest(newStatus).catch((error) => console.error(error));
+      setStatus(newStatus);
+      handleOpenDelete();
+      if (event.target.value === status) {
+        // Your logic here...
       }
-      //   handleClose();
     } else {
       console.error('Invalid event or target value');
     }
   };
+
+  useEffect(() => {
+    console.log(status, 'status >>StatusDropdown ');
+  }, [status]);
 
   // * ON_SUCCESS_OF_REQUEST
   useEffect(() => {
@@ -133,9 +135,10 @@ const StatusDropdown = ({ current, handleClose }) => {
           handleClose={handleCloseDelete}
           open={openDelete}
           onChangeReject={onChangeReject}
+          statusSelected={status}
           rejectReason={rejectReason}
           handleDelete={() => {
-            updateUserRequest('REJECTED', rejectReason).catch((error) => console.error(error));
+            updateUserRequest(status, rejectReason).catch((error) => console.error(error));
             handleCloseDelete();
           }}
         />

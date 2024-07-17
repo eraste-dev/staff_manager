@@ -16,6 +16,9 @@ class RequestResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $startDate = $this->startDate != null ? Carbon::createFromTimestampMs($this->startDate) : null;
+        $endDate = $this->endDate != null ? Carbon::createFromTimestampMs($this->endDate) : null;
+
         return [
             'id' => $this->id,
             'mission' => $this->mission,
@@ -24,14 +27,16 @@ class RequestResource extends JsonResource
             'object' => $this->object,
             'status' => $this->status,
             'request_type' => $this->request_type,
-            'startDate' => $this->startDate,
-            'endDate' => $this->endDate,
+            'start_date_timestamp' => $this->startDate,
+            'end_date_timestamp' => $this->endDate,
+            'startDate' => isset($startDate) ? $startDate->format('d/m/Y à H:i') : null,
+            'endDate' => isset($endDate) ? $endDate->format('d/m/Y à H:i') : null,
             'motif' => $this->motif,
             'reject_reason' => $this->reject_reason,
             'user' => $this->getUseResource(),
             'updated_by' => $this->getUpdatedBy(),
             'created_at' => Carbon::parse($this->created_at)->format('d/m/Y H:i'),
-            'updated_at' => Carbon::parse($this->updated_at)->format('d/m/Y H:i'),
+            'updated_at' => Carbon::parse($this->updated_at)->diffForHumans(),
         ];
     }
 }

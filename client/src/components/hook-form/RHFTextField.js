@@ -12,7 +12,6 @@ export default function RHFTextField({ name, ...other }) {
 
   useEffect(() => {
     if (other.defaultValue && other.defaultValue) {
-      console.log(other.defaultValue);
       setValue(name, other.defaultValue);
     }
   }, [name, setValue]);

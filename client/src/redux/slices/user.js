@@ -66,12 +66,15 @@ const slice = createSlice({
      * Sets the isLoading property of the userRequest state object to true.
      *
      * @param {Object} state - The state object.
+     * @param {Object} action - The action object containing payload data.
      * @return {void}
      */
     startUserRequestLoading(state, action) {
-      state.userRequest.successMessage = null;
-      state.userRequest.isLoading = true;
-      state.userRequest.actionType = action?.payload?.actionType || null;
+      if (state && state.userRequest) {
+        state.userRequest.successMessage = null;
+        state.userRequest.isLoading = true;
+        state.userRequest.actionType = action?.payload?.actionType ?? null;
+      }
     },
 
     /**
@@ -177,6 +180,19 @@ const slice = createSlice({
       state.updateSuccess = null;
       state.error = null;
       state.isLoading = false;
+      state.notifications = undefined;
+      state.userRequest = {
+        error: null,
+        isLoading: false,
+        success: false,
+        successMessage: null,
+        requests: null,
+        actionType: action?.payload?.actionType ?? null,
+        actionTimeExpire: null,
+      };
+
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('loggedIsAdmin');
     },
 
     /**
@@ -402,11 +418,13 @@ export function getNotifications(payload) {
   return async () => {
     dispatch(slice.actions.startLoadingNotifs());
     try {
-      let params = '';
-      if (payload && payload.user_id) {
-        params = `?user_id=${payload.user_id}`;
+      if (!payload || !payload.user_id) {
+        throw new Error('Invalid payload: user_id is missing');
       }
-      const response = await axios.get('/user/notifications', payload);
+
+      const userId = payload.user_id;
+
+      const response = await axios.get(`/user/${userId}/notifications`, payload);
       dispatch(slice.actions.getNotificationSuccess(response.data));
     } catch (error) {
       dispatch(slice.actions.hasError(error));

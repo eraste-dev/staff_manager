@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Services\ResponseService;
 use App\Utils\Utils;
 use Illuminate\Http\Request;
@@ -25,6 +26,24 @@ class NotificationController extends Controller
 
         return ResponseService::error('user not found', Response::HTTP_NOT_FOUND);
     }
+
+    /**
+     * Affiche toutes les notifications de l'utilisateur authentifié.
+     */
+    public function getByUserId(Request $request)
+    {
+        $userId = $request->user_id;
+        if ($userId) {
+            $user = User::find($userId);
+            if ($user) {
+                $notifications = $user->notifications;
+                return ResponseService::success($notifications);
+            }
+        }
+
+        return ResponseService::error('user not found', Response::HTTP_NOT_FOUND);
+    }
+
 
     /**
      * Affiche toutes les notifications non lues de l'utilisateur authentifié.

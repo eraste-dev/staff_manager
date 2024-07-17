@@ -54,7 +54,7 @@ import EmptyContent from 'src/components/EmptyContent';
 // ----------------------------------------------------------------------
 
 // const STATUS_OPTIONS = ['all', 'active', 'banned'];
-const STATUS_OPTIONS = ['Liste des demadnes'];
+const STATUS_OPTIONS = ['Liste des demandes'];
 
 const ROLE_OPTIONS = [
   'all',

@@ -23,7 +23,9 @@ class RequestBookingController extends Controller
     public function get(Request $request)
     {
         $user_id = $request->user_id;
-        $requests = $user_id ? RequestModel::where('user_id', $user_id)->get() : RequestModel::orderBy('id', 'desc')->get();
+        $requests = $user_id
+            ? RequestModel::where('user_id', $user_id)->whereNotIn('status', [Utils::STATE_DELETED()])->get()
+            : RequestModel::orderBy('id', 'desc')->get();
         $requests = $requests ? RequestResource::collection($requests) : collect();
 
         return ResponseService::success($requests, Response::HTTP_OK);
