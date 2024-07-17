@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // form
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -12,38 +12,40 @@ import useIsMountedRef from '../../../hooks/useIsMountedRef';
 // components
 import Iconify from '../../../components/Iconify';
 import { FormProvider, RHFTextField } from '../../../components/hook-form';
+import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
+import { useSnackbar } from 'notistack';
+import { register } from 'src/redux/slices/user';
+import { PATH_DASHBOARD } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
 export default function RegisterForm() {
-  const { register } = useAuth();
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const { user, error, isLoading, registerSuccess } = useSelector((state) => state.user);
+
+  const { enqueueSnackbar } = useSnackbar();
+  // const isMountedRef = useIsMountedRef();
 
   const isMountedRef = useIsMountedRef();
-
   const [showPassword, setShowPassword] = useState(false);
 
   const RegisterSchema = Yup.object().shape({
-    firstName: Yup.string().required('First name required'),
-    lastName: Yup.string().required('Last name required'),
+    nomemp: Yup.string().required('First name required'),
+    premp: Yup.string().required('Last name required'),
+    matemp: Yup.string().required('Last name required'),
+    foncemp: Yup.string().required('Last name required'),
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
     password: Yup.string().required('Password is required'),
   });
 
-  const defaultValues = {
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-  };
+  const defaultValues = { nomemp: '', premp: '', matemp: '', foncemp: '', email: '', password: '' };
 
-  const methods = useForm({
-    resolver: yupResolver(RegisterSchema),
-    defaultValues,
-  });
+  const methods = useForm({ resolver: yupResolver(RegisterSchema), defaultValues });
 
   const {
     reset,
-
     setError,
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -51,7 +53,7 @@ export default function RegisterForm() {
 
   const onSubmit = async (data) => {
     try {
-      await register(data.email, data.password, data.firstName, data.lastName);
+      dispatch(register(data));
     } catch (error) {
       console.error(error);
       reset();
@@ -61,19 +63,30 @@ export default function RegisterForm() {
     }
   };
 
+  useEffect(() => {
+    if (!isLoading && registerSuccess) {
+      enqueueSnackbar('Inscription reussie');
+      router.replace(PATH_DASHBOARD.general.booking);
+    }
+
+    if (!isLoading && !registerSuccess) {
+      enqueueSnackbar(`${error}`, { variant: 'error' });
+    }
+  }, [user, registerSuccess, isLoading, enqueueSnackbar]);
+
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing={3}>
         {!!errors.afterSubmit && <Alert severity="error">{errors.afterSubmit.message}</Alert>}
 
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-          <RHFTextField name="firstName" label="Prenoms" />
-          <RHFTextField name="lastName" label="Nom" />
+          <RHFTextField name="premp" label="Prenoms" />
+          <RHFTextField name="nomemp" label="Nom" />
         </Stack>
 
-        <RHFTextField name="email" label="Fonction" />
+        <RHFTextField name="foncemp" label="Fonction" />
 
-        <RHFTextField name="email" label="Matricule" />
+        <RHFTextField name="matemp" label="Matricule" />
 
         <RHFTextField name="email" label="Email" />
 

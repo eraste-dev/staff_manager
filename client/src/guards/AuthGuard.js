@@ -7,7 +7,9 @@ import useAuth from '../hooks/useAuth';
 import Login from '../pages/auth/login';
 // components
 import LoadingScreen from '../components/LoadingScreen';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { PATH_DASHBOARD } from 'src/routes/paths';
+import { logout, logout_ } from 'src/redux/slices/user';
 
 // ----------------------------------------------------------------------
 
@@ -17,9 +19,10 @@ AuthGuard.propTypes = {
 
 export default function AuthGuard({ children }) {
   // const { isAuthenticated, isInitialized } = useAuth();
-
+  const dispatch = useDispatch();
   const { user, expire, isLoading } = useSelector((state) => state.user);
   const { pathname, push } = useRouter();
+  const router = useRouter();
   const [requestedLocation, setRequestedLocation] = useState(null);
 
   useEffect(() => {
@@ -48,6 +51,8 @@ export default function AuthGuard({ children }) {
 
   if (!isAuthenticated) {
     if (pathname !== requestedLocation) {
+      dispatch(logout_());
+      router.replace(PATH_DASHBOARD.general.booking);
       setRequestedLocation(pathname);
     }
     return <Login />;

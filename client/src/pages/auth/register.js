@@ -86,7 +86,7 @@ export default function Register() {
             )}
           </HeaderStyle>
 
-          {mdUp && (
+          {mdUp && false && (
             <SectionStyle>
               <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
                 Manage the job more effectively with Minimal
@@ -105,7 +105,7 @@ export default function Register() {
               <Box sx={{ mb: 5, display: 'flex', alignItems: 'center' }}>
                 <Box sx={{ flexGrow: 1 }}>
                   <Typography variant="h4" gutterBottom>
-                    Inscription des employés
+                    Inscription des employés ccc
                   </Typography>
                   {/* <Typography sx={{ color: 'text.secondary' }}>Free forever. No credit card needed.</Typography> */}
                 </Box>

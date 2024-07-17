@@ -12,6 +12,12 @@ const RootStyle = styled(Card)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'space-between',
   padding: theme.spacing(2, 2, 2, 3),
+  cursor: 'pointer',
+  border: `solid 1px transparent`,
+  '&:hover': {
+    boxShadow: theme.customShadows.z20,
+    borderColor: theme.palette.primary.main,
+  },
 }));
 
 // ----------------------------------------------------------------------
@@ -19,19 +25,15 @@ const RootStyle = styled(Card)(({ theme }) => ({
 BookingWidgetSummary.propTypes = {
   icon: PropTypes.any,
   title: PropTypes.string,
-  total: PropTypes.string,
 };
 
-export default function BookingWidgetSummary({ title, total, icon }) {
+export default function BookingWidgetSummary({ title, icon }) {
   return (
     <RootStyle>
       <div>
         <Typography variant="h5" sx={{ textTransform: 'initial' }}>
           {title}
         </Typography>
-        {/* <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-          {title}
-        </Typography> */}
       </div>
       <Box
         sx={{

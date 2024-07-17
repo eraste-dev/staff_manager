@@ -6,6 +6,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\NotificationService;
 use App\Services\ResponseService;
+use App\Utils\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -25,7 +26,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('matemp', 'password');
-        if (! $token = JWTAuth::attempt($credentials)) {
+        if (!$token = JWTAuth::attempt($credentials)) {
             return ResponseService::error(__('auth.unauthorized'), 401);
         }
 
@@ -44,14 +45,14 @@ class AuthController extends Controller
     {
         // Validation des données saisies
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
-            'phone_whatsapp' => 'required|string|max:255',
+            'nomemp' => 'required|string|max:255',
+            'premp' => 'required|string|max:255',
+            'matemp' => 'required|string|max:255|unique:users',
+            'foncemp' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
             'status' => 'nullable|string|in:ACTIVE,INACTIVE,DELETED,REJECTED,PENDING,BLOCKED',
-            'type' => 'nullable|string|inADMIN,USER,GUEST',
+            'type' => 'nullable|string|EMPLOYEE,ADMIN',
         ]);
 
         // Si la validation échoue, renvoyer les erreurs
@@ -61,13 +62,14 @@ class AuthController extends Controller
 
         // Création d'un nouvel utilisateur
         $user = User::create([
-            'name' => $request->name,
-            'last_name' => $request->last_name,
-            'phone' => $request->phone,
+            'nomemp' => $request->nomemp,
+            'premp' => $request->premp,
+            'matemp' => $request->matemp,
+            'foncemp' => $request->foncemp,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'type' => $request->type ? $request->type : 'USER',
             'status' => $request->status ? $request->status : 'ACTIVE',
+            'type' => $request->type ? $request->type : 'EMPLOYEE',
         ]);
 
         // send notification
@@ -78,7 +80,7 @@ class AuthController extends Controller
                 'Merci de faire confiance à SOCIBA, vous pouvez publier votre première annonce',
                 [
                     'title' => 'Nouvel utilisateur',
-                    'message' => 'Nouvel utilisateur enregisté : '.$user->name.' '.$user->last_name,
+                    'message' => 'Nouvel utilisateur enregisté : ' . $user->nomemp . ' ' . $user->premp,
                 ]
             );
         } catch (\Throwable $th) {
@@ -100,8 +102,12 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        $token = JWTAuth::getToken(); // Obtiens le token JWT actuel
-        JWTAuth::invalidate($token); // Invalide le token, l'ajoutant à la liste noire
+        try {
+            $token = JWTAuth::getToken(); // Obtiens le token JWT actuel
+            JWTAuth::invalidate($token); // Invalide le token, l'ajoutant à la liste noire
+        } catch (\Throwable $th) {
+            return ResponseService::success('Successfully logged out, token invalid');
+        }
 
         return ResponseService::success('Successfully logged out');
     }
@@ -110,12 +116,12 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'id' => 'required|integer|exists:users,id',
-            'name' => 'nullable|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:255',
-            'phone_whatsapp' => 'nullable|string|max:255',
+            'nomemp' => 'nullable|string|max:255',
+            'premp' => 'nullable|string|max:255',
+            'matemp' => 'nullable|string|max:255',
+            'foncemp' => 'nullable|string|max:255',
             'password' => 'nullable|string',
-            'type' => 'nullable|string|in:ADMIN,USER,GUEST',
+            'type' => 'nullable|string|in:EMPLOYEE,ADMIN',
             'status' => 'nullable|string|in:ACTIVE,INACTIVE,DELETED,REJECTED,PENDING,BLOCKED',
             'avatar' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -128,7 +134,7 @@ class AuthController extends Controller
             $user = User::findOrFail($request->id);
 
             $user->fill($request->only([
-                'name', 'last_name', 'phone', 'phone_whatsapp', 'type', 'status',
+                'nomemp', 'premp', 'matemp', 'foncemp', 'type', 'status',
             ]));
 
             if ($request->filled('password')) {
@@ -148,6 +154,33 @@ class AuthController extends Controller
         } catch (\Throwable $th) {
             return ResponseService::error('Failed to update');
         }
+    }
+
+    public function delete(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|integer|exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return ResponseService::error(
+                "Utilisateur introuvale : " . implode(', ', $validator->errors()->all()),
+                404,
+                $validator->errors()
+            );
+        }
+
+        // Enregistrer les données dans la base de données
+        $validatedData = $validator->validated();
+
+        if (isset($validatedData['id'])) {
+            $demande = User::find($validatedData['id']);
+            $demande->status = Utils::STATE_DELETED();
+            // $demande->updated_by = auth()->user()->id;
+            $demande->update($validatedData);
+        }
+
+        return ResponseService::success([], "Suppression effectuée avec succès");
     }
 
     /**
@@ -204,7 +237,7 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        if (! Hash::check($request->current_password, $user->password)) {
+        if (!Hash::check($request->current_password, $user->password)) {
             throw ValidationException::withMessages([
                 'current_password' => ['Current password is incorrect'],
             ]);

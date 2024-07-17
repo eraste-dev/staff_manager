@@ -1,24 +1,18 @@
-import { capitalCase } from 'change-case';
 // next
 import NextLink from 'next/link';
 // @mui
 import { styled } from '@mui/material/styles';
-import { Box, Card, Stack, Link, Alert, Tooltip, Container, Typography } from '@mui/material';
+import { Box, Card, Stack, Link, Container, Typography } from '@mui/material';
 // routes
 import { PATH_AUTH } from '../../routes/paths';
 // hooks
-import useAuth from '../../hooks/useAuth';
 import useResponsive from '../../hooks/useResponsive';
 // guards
 import GuestGuard from '../../guards/GuestGuard';
 // components
 import Page from '../../components/Page';
-import Logo from '../../components/Logo';
-import Image from '../../components/Image';
 // sections
 import { LoginForm } from '../../sections/auth/login';
-import { useDispatch } from 'react-redux';
-import { login } from 'src/redux/slices/user';
 
 // ----------------------------------------------------------------------
 
@@ -75,13 +69,13 @@ export default function Login() {
       <Page title="Login">
         <RootStyle>
           <HeaderStyle>
-            <di>{''}</di>
+            <div>{''}</div>
             {/* <Logo /> */}
 
             {smUp && (
               <Typography variant="body2" sx={{ mt: { md: -2 } }}>
                 Vous n'avez pas de compte ?{/* Don’t have an account? {''} */}
-                <NextLink href={PATH_AUTH.register} passHref>
+                <NextLink href={PATH_AUTH.registerUnprotected} passHref>
                   <Link variant="subtitle2">Commencer</Link>
                 </NextLink>
               </Typography>
@@ -103,7 +97,7 @@ export default function Login() {
               {!smUp && (
                 <Typography variant="body2" align="center" sx={{ mt: 3 }}>
                   Don’t have an account?{' '}
-                  <NextLink href={PATH_AUTH.register} passHref>
+                  <NextLink href={PATH_AUTH.registerUnprotected} passHref>
                     <Link variant="subtitle2">Get started</Link>
                   </NextLink>
                 </Typography>

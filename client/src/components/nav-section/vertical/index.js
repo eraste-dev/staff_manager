@@ -4,6 +4,8 @@ import { styled } from '@mui/material/styles';
 import { List, Box, ListSubheader } from '@mui/material';
 //
 import { NavListRoot } from './NavList';
+import { useSelector } from 'react-redux';
+import NAV_ADMIN_CONFIG from 'src/layouts/dashboard/navbar/NavConfigAdmin';
 
 // ----------------------------------------------------------------------
 
@@ -28,25 +30,49 @@ NavSectionVertical.propTypes = {
 };
 
 export default function NavSectionVertical({ navConfig, isCollapse = false, ...other }) {
+  const { user, users } = useSelector((state) => state.user);
+
   return (
     <Box {...other}>
-      {navConfig.map((group) => (
-        <List key={group.subheader} disablePadding sx={{ px: 2 }}>
-          <ListSubheaderStyle
-            sx={{
-              ...(isCollapse && {
-                opacity: 0,
-              }),
-            }}
-          >
-            {group.subheader}
-          </ListSubheaderStyle>
+      {user &&
+        !user?.isAdmin &&
+        navConfig.map((group) => (
+          <List key={group.subheader} disablePadding sx={{ px: 2 }}>
+            <ListSubheaderStyle
+              sx={{
+                ...(isCollapse && {
+                  opacity: 0,
+                }),
+              }}
+            >
+              {group.subheader}
+            </ListSubheaderStyle>
 
-          {group.items.map((list) => (
-            <NavListRoot key={list.title} list={list} isCollapse={isCollapse} />
-          ))}
-        </List>
-      ))}
+            {group.items.map((list) => (
+              <NavListRoot key={list.title} list={list} isCollapse={isCollapse} />
+            ))}
+          </List>
+        ))}
+
+      {user &&
+        user?.isAdmin &&
+        NAV_ADMIN_CONFIG.map((group) => (
+          <List key={group.subheader} disablePadding sx={{ px: 2 }}>
+            <ListSubheaderStyle
+              sx={{
+                ...(isCollapse && {
+                  opacity: 0,
+                }),
+              }}
+            >
+              {group.subheader}
+            </ListSubheaderStyle>
+
+            {group.items.map((list) => (
+              <NavListRoot key={list.title} list={list} isCollapse={isCollapse} />
+            ))}
+          </List>
+        ))}
     </Box>
   );
 }

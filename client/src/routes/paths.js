@@ -12,8 +12,8 @@ const ROOTS_DASHBOARD = '/dashboard';
 export const PATH_AUTH = {
   root: ROOTS_AUTH,
   login: path(ROOTS_AUTH, '/login'),
-  register: path(ROOTS_AUTH, '/register'),
-  loginUnprotected: path(ROOTS_AUTH, '/login-unprotected'),
+  // register: path(ROOTS_AUTH, '/register'), // ! remove
+  loginUnprotected: path(ROOTS_AUTH, '/login-unprotected'), // ! remove
   registerUnprotected: path(ROOTS_AUTH, '/register-unprotected'),
   verify: path(ROOTS_AUTH, '/verify'),
   resetPassword: path(ROOTS_AUTH, '/reset-password'),
@@ -40,6 +40,7 @@ export const PATH_DASHBOARD = {
     analytics: path(ROOTS_DASHBOARD, '/analytics'),
     banking: path(ROOTS_DASHBOARD, '/banking'),
     booking: path(ROOTS_DASHBOARD, '/booking'),
+    userRequest: path(ROOTS_DASHBOARD, '/user-requests'),
   },
   mail: {
     root: path(ROOTS_DASHBOARD, '/mail'),

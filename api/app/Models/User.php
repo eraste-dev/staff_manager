@@ -93,4 +93,9 @@ class User extends Authenticatable implements JWTSubject
     {
         $this->notify(new ResetPasswordNotification($token));
     }
+
+    public function  countUserRequest()
+    {
+        return RequestModel::where('user_id', $this->id)->count();
+    }
 }

@@ -4,6 +4,7 @@ import { styled } from '@mui/material/styles';
 import { Typography, Box } from '@mui/material';
 //
 import Image from './Image';
+import SvgIconStyle from './SvgIconStyle';
 
 // ----------------------------------------------------------------------
 
@@ -26,15 +27,17 @@ EmptyContent.propTypes = {
 };
 
 export default function EmptyContent({ title, description, img, ...other }) {
+  const getIcon = (name) => <SvgIconStyle src={`/icons/${name}.svg`} sx={{ width: 1, height: 1 }} />;
+
   return (
     <RootStyle {...other}>
-      <Image
+      {/* <Image
         disabledEffect
         visibleByDefault
         alt="empty content"
-        src={img || 'https://minimal-assets-api.vercel.app/assets/illustrations/illustration_empty_content.svg'}
-        sx={{ height: 240, mb: 3 }}
-      />
+        src={img || getIcon('no_content')}
+        sx={{ height: 140, mb: 3 }}
+      /> */}
 
       <Typography variant="h5" gutterBottom>
         {title}

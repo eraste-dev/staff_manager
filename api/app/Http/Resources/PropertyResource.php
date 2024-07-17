@@ -38,8 +38,8 @@ class PropertyResource extends JsonResource
             // 'post_type'      => $this->post_type,
             // 'created_by'           => $this->created_by,
             'created_at'           => Carbon::parse($this->created_at)->format('d/m/Y H:i'),
-            'updated_by'           => $this->updated_by,
             'updated_at'           => Carbon::parse($this->updated_at)->format('d/m/Y H:i'),
+            'updated_by'           => $this->updated_by,
             "like"                 => 5, //$this->commentCount()
             "commentCount"         => 15, // $this->commentCount()
             "isLiked"              => false,

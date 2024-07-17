@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 // next
 import NextLink from 'next/link';
 // form
@@ -9,9 +9,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Link, Stack, Alert, IconButton, InputAdornment } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 // routes
-import { PATH_AUTH } from '../../../routes/paths';
+import { PATH_AUTH, PATH_DASHBOARD } from '../../../routes/paths';
 // hooks
-import useAuth from '../../../hooks/useAuth';
 import useIsMountedRef from '../../../hooks/useIsMountedRef';
 // components
 import Iconify from '../../../components/Iconify';
@@ -19,12 +18,14 @@ import { FormProvider, RHFTextField, RHFCheckbox } from '../../../components/hoo
 import { login } from 'src/redux/slices/user';
 import { useSnackbar } from 'notistack';
 import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/router';
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.user);
+  const router = useRouter();
+  const { user, error, success, isLoading } = useSelector((state) => state.user);
 
   const { enqueueSnackbar } = useSnackbar();
   const isMountedRef = useIsMountedRef();
@@ -53,21 +54,29 @@ export default function LoginForm() {
     try {
       if (data && data.matemp && data.password) {
         await dispatch(login(data.matemp, data.password));
-        console.log(user);
-        if (user && !user.error) {
-          enqueueSnackbar('Connexion reussie');
-        } else {
-          enqueueSnackbar('Connexion échoué', { variant: 'error' });
-        }
       }
     } catch (error) {
-      console.error(error);
       reset();
       if (isMountedRef.current) {
         setError('afterSubmit', { ...error, message: error.message });
       }
     }
   };
+
+  useEffect(() => {
+    if (!isLoading && success && !error) {
+      enqueueSnackbar('Connexion reussie');
+      if(user.isAdmin) {
+        router.replace(PATH_DASHBOARD.general.userRequest);
+      } else {
+        router.replace(PATH_DASHBOARD.general.booking);
+      }
+    }
+
+    if (!isLoading && !success && error) {
+      enqueueSnackbar('Connexion échouée', { variant: 'error' });
+    }
+  }, [user, success, isLoading, enqueueSnackbar]);
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
