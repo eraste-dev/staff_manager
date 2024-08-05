@@ -52,6 +52,7 @@ class RequestBookingController extends Controller
             'startDate' => 'nullable|string',
             'endDate' => 'nullable|string',
             'motif' => 'nullable|string',
+            'request_reason' => 'nullable|string',
             'request_type' => 'required|string',
         ]);
 
